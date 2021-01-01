@@ -21,7 +21,7 @@ import (
 	pb "github.com/GoogleCloudPlatform/gifinator/proto"
 	"github.com/fogleman/pt/pt"
 	"github.com/minio/minio-go/v7"
-	//"github.com/minio/minio-go/v7/pkg/credentials"
+	"github.com/minio/minio-go/v7/pkg/credentials"
 	"google.golang.org/grpc"
 	//"io/ioutil"
 	"context"
