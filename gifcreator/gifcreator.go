@@ -18,8 +18,7 @@ package main
 
 import (
 	"bytes"
-	"cloud.google.com/go/storage"
-	"cloud.google.com/go/trace"
+	"cloud.google.com/go/trace" //might get rid of this later
 	"context"
 	"encoding/json"
 	"flag"
@@ -29,7 +28,6 @@ import (
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
 	"golang.org/x/image/font/gofont/gobold"
-	"google.golang.org/api/iterator"
 	"google.golang.org/grpc"
 	"gopkg.in/redis.v5" //very outdated api version
 	"image"
@@ -86,7 +84,7 @@ func transform(inputPath string, jobId string) (bytes.Buffer, error) {
 // refactor this function to upload outBytes to the bucket
 func upload(outBytes []byte, outputPath string, mimeType string, client *minio.Client, ctx context.Context) error {
 	objName := outputPath[strings.LastIndex(outputPath, "/"):]
-	uploadInfo, err := client.PutObject(ctx, "gifbucket", objName, outBytes, len(outBytes), minio.PutObjectOptions{ContentType: mimeType})
+	uploadInfo, err := client.PutObject(ctx, "gifbucket", objName, bytes.NewReader(outBytes), int64(len(outBytes)), minio.PutObjectOptions{ContentType: mimeType})
 	if err != nil {
 		fmt.Println(err)
 		return err
@@ -163,7 +161,7 @@ func (server) StartJob(ctx context.Context, req *pb.StartJobRequest) (*pb.StartJ
 	if err != nil {
 		return nil, err
 	}
-	err = upload(t.Bytes(), /*this is outputPath*/gcsBucketName+"/job_"+jobIdStr+".obj", "binary/octet-stream", minioClient, ctx)
+	err = upload(t.Bytes() /*this is outputPath*/, gcsBucketName+"/job_"+jobIdStr+".obj", "binary/octet-stream", minioClient, ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -171,7 +169,7 @@ func (server) StartJob(ctx context.Context, req *pb.StartJobRequest) (*pb.StartJ
 	if err != nil {
 		return nil, err
 	}
-	err = upload(t.Bytes(), /*this is outputPath*/gcsBucketName+"/job_"+jobIdStr+".mtl", "binary/octet-stream", minioClient, ctx)
+	err = upload(t.Bytes() /*this is outputPath*/, gcsBucketName+"/job_"+jobIdStr+".mtl", "binary/octet-stream", minioClient, ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -186,7 +184,7 @@ func (server) StartJob(ctx context.Context, req *pb.StartJobRequest) (*pb.StartJ
 	addLabel(badgeImg.(*image.NRGBA), 90, 120, req.Name)
 	buf := new(bytes.Buffer)
 	err = png.Encode(buf, badgeImg)
-	err = upload(buf.Bytes(), /*this is outputPath*/gcsBucketName+"/job_"+jobIdStr+"_badge.png", "image/png", minioClient, ctx)
+	err = upload(buf.Bytes() /*this is outputPath*/, gcsBucketName+"/job_"+jobIdStr+"_badge.png", "image/png", minioClient, ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -271,7 +269,7 @@ func leaseNextTask() error {
 	outputBasePath := gcsBucketName + "/" + outputPrefix
 	req := &pb.RenderRequest{
 		GcsOutputBase: outputBasePath,
-		ObjPath: gcsBucketName + "/job_" + jobIdStr + ".obj",
+		ObjPath:       gcsBucketName + "/job_" + jobIdStr + ".obj",
 		Assets: []string{
 			gcsBucketName + "/job_" + jobIdStr + ".mtl",
 			gcsBucketName + "/job_" + jobIdStr + "_badge.png",
@@ -342,7 +340,7 @@ func compileGifs(prefix string, tCtx context.Context) (string, error) {
 	})
 	if err != nil {
 		log.Println("error making minio client", err)
-		return nil, err
+		return "", err
 	}
 
 	ctx, cancel := context.WithCancel(tCtx)
@@ -351,7 +349,6 @@ func compileGifs(prefix string, tCtx context.Context) (string, error) {
 
 	objectCh := minioClient.ListObjects(ctx, "gifbucket", ListObjectsOptions{
 		Prefix: prefix,
-		Recursive: true,
 	})
 
 	var orderedObjects []minio.ObjectInfo
@@ -362,24 +359,24 @@ func compileGifs(prefix string, tCtx context.Context) (string, error) {
 		orderedObjects = append(orderedObjects, minioObj) //might need pointer to object instead of just object
 	}
 
-/*
-	it := gcsClient.Bucket(gcsBucketName).Objects(tCtx, &storage.Query{Prefix: prefix, Versions: false})
-	// Results from GCS are unordered, so pull the list into memory and sort it
-	var orderedObjects []storage.ObjectAttrs
-	for {
-		obj, err := it.Next()
-		if err == iterator.Done {
-			break
+	/*
+		it := gcsClient.Bucket(gcsBucketName).Objects(tCtx, &storage.Query{Prefix: prefix, Versions: false})
+		// Results from GCS are unordered, so pull the list into memory and sort it
+		var orderedObjects []storage.ObjectAttrs
+		for {
+			obj, err := it.Next()
+			if err == iterator.Done {
+				break
+			}
+			orderedObjects = append(orderedObjects, *obj)
 		}
-		orderedObjects = append(orderedObjects, *obj)
-	}
-	slice.Sort(orderedObjects[:], func(i, j int) bool {
-		return orderedObjects[i].Name < orderedObjects[j].Name
-	})
-*/
+		slice.Sort(orderedObjects[:], func(i, j int) bool {
+			return orderedObjects[i].Name < orderedObjects[j].Name
+		})
+	*/
 
 	finalGif := &gif.GIF{}
-	for frameObj := range orderedObjects {
+	for _, frameObj := range orderedObjects {
 		object, err := minioClient.GetObject(tCtx, "gifbucket", frameObj.Key, minio.GetObjectOptions{})
 		if err != nil {
 			fmt.Println(err)
@@ -406,15 +403,17 @@ func compileGifs(prefix string, tCtx context.Context) (string, error) {
 
 	finalObjName := prefix + "/animated.gif"
 	finalGifBytes := []byte(finalGif)
-	uploadInfo, err := minioClient.PutObject(tCtx, "gifbucket", finalObjName, finalGifBytes, len(finalGifBytes), minio.PutObjectOptions{ContentType:"image/gif"})
+	// TODO: need to save the gif struct as object
+	uploadInfo, err := minioClient.PutObject(tCtx, "gifbucket", finalObjName, finalGifBytes, len(finalGifBytes), minio.PutObjectOptions{ContentType: "image/gif"})
 	if err != nil {
 		fmt.Println(err)
-		return
+		return "", err
 	}
 	fmt.Println("Successfully uploaded bytes: ", uploadInfo)
 
 	// TODO: set final minio object to be public and return the link to it
 	//return gcsBucketName + ".storage.googleapis.com/" + finalObjName, nil
+	return "PL0X REEEEEEEEplace", nil
 }
 
 func (server) GetJob(ctx context.Context, req *pb.GetJobRequest) (*pb.GetJobResponse, error) {
