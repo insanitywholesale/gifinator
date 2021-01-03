@@ -347,14 +347,12 @@ func compileGifs(prefix string, tCtx context.Context) (string, error) {
 
 	defer cancel()
 
-	objectCh := minioClient.ListObjects(ctx, "gifbucket", ListObjectsOptions{
-		Prefix: prefix,
-	})
+	objectCh := minioClient.ListObjects(ctx, "gifbucket", minio.ListObjectsOptions{Prefix: prefix})
 
 	var orderedObjects []minio.ObjectInfo
 	for minioObj := range objectCh {
 		if minioObj.Err != nil {
-			fmt.Println("object error:", object.Err)
+			fmt.Println("object error:", minioObj.Err)
 		}
 		orderedObjects = append(orderedObjects, minioObj) //might need pointer to object instead of just object
 	}
@@ -402,9 +400,10 @@ func compileGifs(prefix string, tCtx context.Context) (string, error) {
 	}
 
 	finalObjName := prefix + "/animated.gif"
-	finalGifBytes := []byte(finalGif)
+	//finalGifBytes := bytes.NewReader(finalGif)
+	//finalGifBytesIOReader := bytes.NewReader([]byte(finalGif))
 	// TODO: need to save the gif struct as object
-	uploadInfo, err := minioClient.PutObject(tCtx, "gifbucket", finalObjName, finalGifBytes, len(finalGifBytes), minio.PutObjectOptions{ContentType: "image/gif"})
+	uploadInfo, err := minioClient.PutObject(tCtx, "gifbucket", finalObjName, /*need ioreader and size for gif*/, minio.PutObjectOptions{ContentType: "image/gif"})
 	if err != nil {
 		fmt.Println(err)
 		return "", err
