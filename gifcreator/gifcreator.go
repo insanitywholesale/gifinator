@@ -18,7 +18,6 @@ package main
 
 import (
 	"bytes"
-	"cloud.google.com/go/trace" //might get rid of this later
 	"context"
 	"encoding/json"
 	"flag"
@@ -63,7 +62,6 @@ var (
 	scenePath     string
 	deploymentId  string
 	workerMode    = flag.Bool("worker", false, "run in worker mode rather than server")
-	traceClient   *trace.Client
 	gcsBucketName string //TODO: minio
 )
 
@@ -112,11 +110,6 @@ func addLabel(img *image.NRGBA, x, y int, label string) error {
 }
 
 func (server) StartJob(ctx context.Context, req *pb.StartJobRequest) (*pb.StartJobResponse, error) {
-	span := traceClient.NewSpan("gifcreator.StartJob")
-	span.SetLabel("service", serviceName)
-	span.SetLabel("version", deploymentId)
-	defer span.Finish()
-
 	// Retrieive the next job ID from Redis
 	jobId, err := redisClient.Incr("gifjob_counter").Result()
 	if err != nil {
@@ -235,12 +228,6 @@ func leaseNextTask() error {
 	 * processing queue. If this process crashes during processing then a garbage
 	 * collector could move the task back into the 'queueing' queue.
 	 */
-	span := traceClient.NewSpan("gifCreator.leaseNextTask")
-	span.SetLabel("service", serviceName)
-	span.SetLabel("version", deploymentId)
-	tCtx := trace.NewContext(context.Background(), span)
-	defer span.Finish()
-
 	jobString, err := redisClient.BRPopLPush("gifjob_queued", "gifjob_processing", 0).Result()
 	if err != nil {
 		return err
@@ -280,7 +267,7 @@ func leaseNextTask() error {
 		Iterations: 1,
 	}
 
-	_, err = renderClient.RenderFrame(tCtx, req)
+	_, err = renderClient.RenderFrame(context.Background(), req)
 
 	if err != nil {
 		// TODO(jessup) Swap these out for proper logging
@@ -308,7 +295,7 @@ func leaseNextTask() error {
 	queueLengthInt, _ := strconv.ParseInt(queueLength, 10, 64)
 	fmt.Fprintf(os.Stdout, "job_gifjob_%s : %d of %d tasks done\n", jobIdStr, completedTaskCount, queueLengthInt)
 	if completedTaskCount == queueLengthInt {
-		finalImagePath, err := compileGifs(outputPrefix, tCtx)
+		finalImagePath, err := compileGifs(outputPrefix, context.Background())
 		if err != nil {
 			return err
 		}
@@ -343,7 +330,7 @@ func compileGifs(prefix string, tCtx context.Context) (string, error) {
 		return "", err
 	}
 
-	ctx, cancel := context.WithCancel(tCtx)
+	ctx, cancel := context.WithCancel(context.Background())
 
 	defer cancel()
 
@@ -375,7 +362,7 @@ func compileGifs(prefix string, tCtx context.Context) (string, error) {
 
 	finalGif := &gif.GIF{}
 	for _, frameObj := range orderedObjects {
-		object, err := minioClient.GetObject(tCtx, "gifbucket", frameObj.Key, minio.GetObjectOptions{})
+		object, err := minioClient.GetObject(ctx, "gifbucket", frameObj.Key, minio.GetObjectOptions{})
 		if err != nil {
 			fmt.Println(err)
 			return "", err
@@ -399,16 +386,16 @@ func compileGifs(prefix string, tCtx context.Context) (string, error) {
 		finalGif.Delay = append(finalGif.Delay, 0)
 	}
 
-	finalObjName := prefix + "/animated.gif"
+	//finalObjName := prefix + "/animated.gif"
 	//finalGifBytes := bytes.NewReader(finalGif)
 	//finalGifBytesIOReader := bytes.NewReader([]byte(finalGif))
 	// TODO: need to save the gif struct as object
-	uploadInfo, err := minioClient.PutObject(tCtx, "gifbucket", finalObjName, /*need ioreader and size for gif*/, minio.PutObjectOptions{ContentType: "image/gif"})
-	if err != nil {
-		fmt.Println(err)
-		return "", err
-	}
-	fmt.Println("Successfully uploaded bytes: ", uploadInfo)
+	//uploadInfo, err := minioClient.PutObject(ctx, "gifbucket", finalObjName, /*need ioreader and size for gif*/, minio.PutObjectOptions{ContentType: "image/gif"})
+	//if err != nil {
+	//	fmt.Println(err)
+	//	return "", err
+	//}
+	//fmt.Println("Successfully uploaded bytes: ", uploadInfo)
 
 	// TODO: set final minio object to be public and return the link to it
 	//return gcsBucketName + ".storage.googleapis.com/" + finalObjName, nil
@@ -416,11 +403,6 @@ func compileGifs(prefix string, tCtx context.Context) (string, error) {
 }
 
 func (server) GetJob(ctx context.Context, req *pb.GetJobRequest) (*pb.GetJobResponse, error) {
-	span := traceClient.NewSpan("gifCreator.GetJob") // TODO(jbd): make /memcreate top-level span optional
-	span.SetLabel("service", serviceName)
-	span.SetLabel("version", deploymentId)
-	defer span.Finish()
-
 	var job renderJob
 	statusStr, err := redisClient.Get("job_gifjob_" + string(req.JobId)).Result()
 	if err != nil {
@@ -438,6 +420,7 @@ func (server) GetJob(ctx context.Context, req *pb.GetJobRequest) (*pb.GetJobResp
 func main() {
 	flag.Parse()
 	port := os.Getenv("GIFCREATOR_PORT")
+	port = "9191"
 	i, err := strconv.Atoi(port)
 	if (err != nil) || (i < 1) {
 		log.Fatalf("please set env var GIFCREATOR_PORT to a valid port")
@@ -446,7 +429,7 @@ func main() {
 	// TODO(jessup) Need stricter checking here.
 	redisName := os.Getenv("REDIS_NAME")
 	redisPort := os.Getenv("REDIS_PORT")
-	projectID := os.Getenv("GOOGLE_PROJECT_ID")
+	//projectID := os.Getenv("GOOGLE_PROJECT_ID")
 	renderName := os.Getenv("RENDER_NAME")
 	renderPort := os.Getenv("RENDER_PORT")
 	renderHostAddr := renderName + ":" + renderPort
@@ -464,13 +447,7 @@ func main() {
 		// Worker mode will perpetually poll the queue and lease tasks
 		fmt.Fprintf(os.Stdout, "starting gifcreator in worker mode\n")
 
-		traceClient, err = trace.NewClient(context.Background(), projectID, trace.EnableGRPCTracing)
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		conn, err := grpc.Dial(renderHostAddr,
-			trace.EnableGRPCTracingDialOption, grpc.WithInsecure())
+		conn, err := grpc.Dial(renderHostAddr, grpc.WithInsecure())
 
 		if err != nil {
 			// TODO(jessup) Swap these out for proper logging
