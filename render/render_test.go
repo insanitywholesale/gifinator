@@ -62,7 +62,7 @@ func TestRenderFrame(t *testing.T) {
 		GcsOutputBase: "gifbucket",
 		ObjPath: "airboat.obj",
 		Assets: []string{},
-		Rotation: 3.0,
+		Rotation: 2.0,
 		Iterations: 1,
 	}
 	res, err := client.RenderFrame(ctx, renderRequest)

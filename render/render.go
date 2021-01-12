@@ -127,12 +127,6 @@ func (server) RenderFrame(ctx context.Context, req *pb.RenderRequest) (*pb.Rende
 
 	// Save in GCS
 	gcsPath := fmt.Sprintf("%s.image_%.0frad.png", req.GcsOutputBase, req.Rotation)
-//
-//
-// The following has big error
-//   fucky wucky no workie
-//
-
 	// change renderImage to return a filename to use here so I don't have to do the following
 	// find last occurance of / and get the string from there to the end
 	// the slice trick results in an error
@@ -141,14 +135,11 @@ func (server) RenderFrame(ctx context.Context, req *pb.RenderRequest) (*pb.Rende
 
 	log.Println("imgPath:", imgPath)
 
-	imgFileName := imgPath[strings.LastIndex(imgPath, "/"):]
+	imgFileName := strings.TrimLeft(imgPath[strings.LastIndex(imgPath, "/"):], "/")
 	uploadInfo, err := minioClient.FPutObject(ctx, "gifbucket", imgFileName, imgPath, minio.PutObjectOptions{})
-
-//
-//
-// The above has big error
-//   fucky wucky no workie
-//
+	if err != nil {
+		log.Println("error uploading image to minio", err)
+	}
 	fmt.Println("uploaded:", uploadInfo)
 	response := pb.RenderResponse{GcsOutput: gcsPath}
 	return &response, nil
