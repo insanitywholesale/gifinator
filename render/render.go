@@ -18,7 +18,7 @@ package main
 
 import (
 	"fmt"
-	pb "github.com/GoogleCloudPlatform/gifinator/proto"
+	pb "gitlab.com/insanitywholesale/gifinator/proto"
 	"github.com/fogleman/pt/pt"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
@@ -36,16 +36,15 @@ import (
 type server struct{}
 
 var (
-	//gcsClient   *storage.Client
 	gcsCacheDir string
 	minioClient *minio.Client
 )
 
 func cacheMinioObjToDisk(ctx context.Context, minioObj *minio.Object) (string, error) {
-	fileName := "object"
+	fileName := "airboat.obj"
 	basePath := "/tmp/objcache"
 	fullPath := basePath + "/" + fileName
-	err := minioClient.FGetObject(ctx, "gifbucket", fileName, basePath+fileName, minio.GetObjectOptions{})
+	err := minioClient.FGetObject(ctx, "gifbucket", fileName, fullPath, minio.GetObjectOptions{})
 	if err != nil {
 		fmt.Println("err:", err)
 	}
@@ -97,7 +96,12 @@ func (server) RenderFrame(ctx context.Context, req *pb.RenderRequest) (*pb.Rende
 
 	// Load main object (.obj) file
 	//objGcsObj, _ := gcsref.Parse(req.ObjPath)
-	objGcsObj, _ := minioClient.GetObject(ctx, "gifbucket", "smth.obj" /*take from ObjPath*/, minio.GetObjectOptions{})
+	// TODO: fix nil pointer dereference happenning here
+	log.Println("req.ObjPath:", req.ObjPath)
+	objGcsObj, err := minioClient.GetObject(ctx, "gifbucket", req.ObjPath, minio.GetObjectOptions{})
+	if err != nil {
+		//fmt.Fprintf(os.Stderr, "error getting object %s, err: %v\n", req.ObjPath, err)
+	}
 	objFilepath, err := cacheMinioObjToDisk(ctx, objGcsObj)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "error caching %s, err: %v\n", req.ObjPath, err)
@@ -116,22 +120,41 @@ func (server) RenderFrame(ctx context.Context, req *pb.RenderRequest) (*pb.Rende
 	// Create and render a scene seeded with the object we loaded
 	fmt.Fprintf(os.Stdout, "starting actual render - object: %s, angle: %f\n", req.ObjPath, req.Rotation)
 	imgPath, err := renderImage(objFilepath, float64(req.Rotation), req.Iterations)
+	if err != nil {
+		log.Println("renderImage error:", err)
+	}
 	fmt.Fprintf(os.Stdout, "finished actual render - object: %s, angle: %f\n", req.ObjPath, req.Rotation)
 
 	// Save in GCS
 	gcsPath := fmt.Sprintf("%s.image_%.0frad.png", req.GcsOutputBase, req.Rotation)
+//
+//
+// The following has big error
+//   fucky wucky no workie
+//
 
 	// change renderImage to return a filename to use here so I don't have to do the following
 	// find last occurance of / and get the string from there to the end
+	// the slice trick results in an error
+	// I winged it and didn't think about what happens when it returns -1
+	// AKA what happens when the imgPath is not GCS-related
+
+	log.Println("imgPath:", imgPath)
+
 	imgFileName := imgPath[strings.LastIndex(imgPath, "/"):]
 	uploadInfo, err := minioClient.FPutObject(ctx, "gifbucket", imgFileName, imgPath, minio.PutObjectOptions{})
+
+//
+//
+// The above has big error
+//   fucky wucky no workie
+//
 	fmt.Println("uploaded:", uploadInfo)
 	response := pb.RenderResponse{GcsOutput: gcsPath}
 	return &response, nil
 }
 
 func main() {
-	ctx := context.Background()
 	endpoint := "truenas.hell:9000"
 	accessKeyID := "katie"
 	secretAccessKey := "Asus_hol1"
@@ -142,6 +165,7 @@ func main() {
 		Creds:  credentials.NewStaticV4(accessKeyID, secretAccessKey, ""),
 		Secure: useSSL,
 	})
+	log.Println("mC:", minioClient)
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -150,7 +174,7 @@ func main() {
 
 	serving_port := os.Getenv("RENDER_PORT")
 	if serving_port == "" {
-		serving_port := "8080"
+		serving_port = "8080"
 	}
 	i, err := strconv.Atoi(serving_port)
 	if (err != nil) || (i < 1) {
@@ -163,7 +187,7 @@ func main() {
 		log.Fatalf("listen failed: %v", err)
 		return
 	}
-	log.Println("running")
+	log.Println("running on port:", serving_port)
 
 	gcsCacheDir = os.TempDir()
 

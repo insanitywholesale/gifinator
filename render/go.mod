@@ -13,6 +13,7 @@ require (
 	github.com/google/uuid v1.1.3 // indirect
 	github.com/minio/md5-simd v1.1.1 // indirect
 	github.com/minio/minio-go/v7 v7.0.6
+	gitlab.com/insanitywholesale/gifinator v0.0.0-20210108161731-70848854098c
 	golang.org/x/crypto v0.0.0-20201221181555-eec23a3978ad // indirect
 	golang.org/x/net v0.0.0-20201224014010-6772e930b67b
 	golang.org/x/sys v0.0.0-20201223074533-0d417f636930 // indirect
