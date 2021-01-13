@@ -18,10 +18,10 @@ package main
 
 import (
 	"fmt"
-	pb "gitlab.com/insanitywholesale/gifinator/proto"
 	"github.com/fogleman/pt/pt"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
+	pb "gitlab.com/insanitywholesale/gifinator/proto"
 	"google.golang.org/grpc"
 	//"io/ioutil"
 	"context"
@@ -40,8 +40,7 @@ var (
 	minioClient *minio.Client
 )
 
-func cacheMinioObjToDisk(ctx context.Context, minioObj *minio.Object) (string, error) {
-	fileName := "airboat.obj"
+func cacheMinioObjToDisk(ctx context.Context, fileName string) (string, error) {
 	basePath := "/tmp/objcache"
 	fullPath := basePath + "/" + fileName
 	err := minioClient.FGetObject(ctx, "gifbucket", fileName, fullPath, minio.GetObjectOptions{})
@@ -51,7 +50,6 @@ func cacheMinioObjToDisk(ctx context.Context, minioObj *minio.Object) (string, e
 	return fullPath, nil
 }
 
-// assume objectPath is something like http://truenas.hell:9000/minio/gifcreator/whatev.obj
 func renderImage(objectPath string, rotation float64, iterations int32) (string, error) {
 	scene := pt.Scene{}
 
@@ -95,14 +93,12 @@ func (server) RenderFrame(ctx context.Context, req *pb.RenderRequest) (*pb.Rende
 	fmt.Fprintf(os.Stdout, "starting render job - object: %s, angle: %f\n", req.ObjPath, req.Rotation)
 
 	// Load main object (.obj) file
-	//objGcsObj, _ := gcsref.Parse(req.ObjPath)
 	// TODO: fix nil pointer dereference happenning here
-	log.Println("req.ObjPath:", req.ObjPath)
-	objGcsObj, err := minioClient.GetObject(ctx, "gifbucket", req.ObjPath, minio.GetObjectOptions{})
-	if err != nil {
-		//fmt.Fprintf(os.Stderr, "error getting object %s, err: %v\n", req.ObjPath, err)
-	}
-	objFilepath, err := cacheMinioObjToDisk(ctx, objGcsObj)
+	//objGcsObj, err := minioClient.GetObject(ctx, "gifbucket", req.ObjPath, minio.GetObjectOptions{})
+	//if err != nil {
+	//	fmt.Fprintf(os.Stderr, "error getting object %s, err: %v\n", req.ObjPath, err)
+	//}
+	objFilepath, err := cacheMinioObjToDisk(ctx, req.ObjPath)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "error caching %s, err: %v\n", req.ObjPath, err)
 		return nil, err
@@ -125,15 +121,13 @@ func (server) RenderFrame(ctx context.Context, req *pb.RenderRequest) (*pb.Rende
 	}
 	fmt.Fprintf(os.Stdout, "finished actual render - object: %s, angle: %f\n", req.ObjPath, req.Rotation)
 
-	// Save in GCS
-	gcsPath := fmt.Sprintf("%s.image_%.0frad.png", req.GcsOutputBase, req.Rotation)
+	// name of the final image that will be saved to minio
+	imgFinalName := fmt.Sprintf("%s.image_%.0frad.png", req.GcsOutputBase, req.Rotation)
 	// change renderImage to return a filename to use here so I don't have to do the following
 	// find last occurance of / and get the string from there to the end
 	// the slice trick results in an error
 	// I winged it and didn't think about what happens when it returns -1
 	// AKA what happens when the imgPath is not GCS-related
-
-	log.Println("imgPath:", imgPath)
 
 	imgFileName := strings.TrimLeft(imgPath[strings.LastIndex(imgPath, "/"):], "/")
 	uploadInfo, err := minioClient.FPutObject(ctx, "gifbucket", imgFileName, imgPath, minio.PutObjectOptions{})
@@ -141,7 +135,7 @@ func (server) RenderFrame(ctx context.Context, req *pb.RenderRequest) (*pb.Rende
 		log.Println("error uploading image to minio", err)
 	}
 	fmt.Println("uploaded:", uploadInfo)
-	response := pb.RenderResponse{GcsOutput: gcsPath}
+	response := pb.RenderResponse{GcsOutput: imgFinalName}
 	return &response, nil
 }
 

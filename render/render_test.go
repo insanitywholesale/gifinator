@@ -1,16 +1,16 @@
 package main
 
 import (
-	"testing"
+	"context"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
-	"os"
-	"net"
-	"context"
-	"log"
-	"google.golang.org/grpc"
 	pb "gitlab.com/insanitywholesale/gifinator/proto"
+	"google.golang.org/grpc"
 	"google.golang.org/grpc/test/bufconn"
+	"log"
+	"net"
+	"os"
+	"testing"
 )
 
 func TestRenderFrame(t *testing.T) {
@@ -49,7 +49,7 @@ func TestRenderFrame(t *testing.T) {
 	conn, err := grpc.DialContext(
 		ctx,
 		"bufnet",
-		grpc.WithContextDialer(func(context.Context, string) (net.Conn, error) {return listener.Dial() }),
+		grpc.WithContextDialer(func(context.Context, string) (net.Conn, error) { return listener.Dial() }),
 		grpc.WithInsecure(),
 	)
 	if err != nil {
@@ -60,10 +60,10 @@ func TestRenderFrame(t *testing.T) {
 	//renderRequest := /* TODO: fill this in */
 	renderRequest := &pb.RenderRequest{
 		GcsOutputBase: "gifbucket",
-		ObjPath: "airboat.obj",
-		Assets: []string{},
-		Rotation: 2.0,
-		Iterations: 1,
+		ObjPath:       "airboat.obj",
+		Assets:        []string{},
+		Rotation:      2.0,
+		Iterations:    1,
 	}
 	res, err := client.RenderFrame(ctx, renderRequest)
 	if err != nil {
