@@ -7,6 +7,8 @@ import (
 	"google.golang.org/grpc/test/bufconn"
 	"net"
 	"testing"
+	"gopkg.in/redis.v5" //very outdated api version
+	"log"
 )
 
 func TestStartJob(t *testing.T) {
@@ -14,6 +16,12 @@ func TestStartJob(t *testing.T) {
 	const bufSize = 1024 * 1024
 	var listener *bufconn.Listener
 	listener = bufconn.Listen(bufSize)
+
+	redisClient = redis.NewClient(&redis.Options{
+		Addr:     "localhost:6379",
+		Password: "", // no password set
+		DB:       0,  // use default DB
+	})
 
 	srv := grpc.NewServer()
 	pb.RegisterGifCreatorServer(srv, server{})
@@ -35,5 +43,15 @@ func TestStartJob(t *testing.T) {
 	}
 	defer conn.Close()
 
-	// add database connection stuff
+	client := pb.NewGifCreatorClient(conn)
+	startJobRequest := &pb.StartJobRequest{
+		Name: "katiething",
+		ProductToPlug: 1,
+	}
+	res, err := client.StartJob(ctx, startJobRequest)
+	if err != nil {
+		t.Log("error starting job:", err)
+	}
+	log.Println("response:", res)
+
 }
