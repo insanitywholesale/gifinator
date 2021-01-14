@@ -1,5 +1,6 @@
-- render is halfway done, at least it compiles and starts the grpc server
-- gifcreator needs a lot of work to be decoupled from gcs and is the priority at the moment
+- render seems to be working, more testing required
+- gifcreator  seems to do something but functionality is probably incomplete
 - update redis api from v5 to v8
-- check if kubernetes manifests work
+- fix kubernetes manifests
 - write tests
+- fix frontend
