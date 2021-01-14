@@ -7,3 +7,7 @@ look at TODO for what's left to be done.
 
 airboat.obj is a file uploaded to minio so I didn't have to mess with the obj.tmpl ones
 it's just for testing
+
+# running
+
+all of the parts need certain environment variables to be set

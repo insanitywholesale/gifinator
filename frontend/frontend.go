@@ -23,7 +23,6 @@ import (
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 	"html/template"
-	//"log"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -111,12 +110,12 @@ func handleForm(w http.ResponseWriter, r *http.Request) {
 			renderForm(w, formErrors)
 			return
 		}
-/*
-		// Submit answers, get task ID, and redirect...
-		span := traceClient.NewSpan("/memecreate") // TODO(jbd): make /memcreate top-level span optional
-		defer span.Finish()
-*/
-		response, err := gcClient.StartJob(context.Background(),	&pb.StartJobRequest{Name: gifName, ProductToPlug: mascotType})
+		/*
+			// Submit answers, get task ID, and redirect...
+			span := traceClient.NewSpan("/memecreate") // TODO(jbd): make /memcreate top-level span optional
+			defer span.Finish()
+		*/
+		response, err := gcClient.StartJob(context.Background(), &pb.StartJobRequest{Name: gifName, ProductToPlug: mascotType})
 		if err != nil {
 			// TODO(jessup) Swap these out for proper logging
 			fmt.Fprintf(os.Stderr, "cannot request Gif - %v", err)

@@ -4,3 +4,5 @@
 - fix kubernetes manifests
 - write tests
 - fix frontend
+- document required env vars
+- add defaults as well as error handling for the env vars
