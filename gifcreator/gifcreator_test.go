@@ -5,13 +5,14 @@ import (
 	pb "gitlab.com/insanitywholesale/gifinator/proto"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/test/bufconn"
-	"net"
-	"testing"
 	"gopkg.in/redis.v5" //very outdated api version
 	"log"
+	"net"
+	"testing"
 )
 
 func TestStartJob(t *testing.T) {
+	scenePath = "/tmp/scene"
 	ctx := context.Background()
 	const bufSize = 1024 * 1024
 	var listener *bufconn.Listener
@@ -45,13 +46,14 @@ func TestStartJob(t *testing.T) {
 
 	client := pb.NewGifCreatorClient(conn)
 	startJobRequest := &pb.StartJobRequest{
-		Name: "katiething",
-		ProductToPlug: 1,
+		Name:          "k8s",
+		ProductToPlug: 2,
 	}
 	res, err := client.StartJob(ctx, startJobRequest)
 	if err != nil {
 		t.Log("error starting job:", err)
 	}
 	log.Println("response:", res)
+	log.Println("response id:", res.JobId)
 
 }
