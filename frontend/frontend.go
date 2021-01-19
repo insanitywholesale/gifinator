@@ -33,7 +33,7 @@ import (
 var (
 	templatePath string
 	staticPath   string
-	projectID    string // Google Console Project ID
+	projectID    string // Google Console Project ID //TODO: change this
 	port         string
 
 	gcClient pb.GifCreatorClient

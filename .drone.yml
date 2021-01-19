@@ -1,0 +1,18 @@
+kind: pipeline
+type: kubernetes
+name: default
+
+steps:
+  - name: gifcreator
+    image: golang
+    commands:
+      - cd gifcreator
+      - cp -r scene /tmp
+      - go get -v
+      - go build -v
+      - go test -v
+
+service:
+ - name: redisdb
+   image: redis:5
+  
