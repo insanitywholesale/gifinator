@@ -11,6 +11,9 @@ import (
 	"testing"
 )
 
+//scenePath, redisClient and server should be changed
+//in order to be able to run go test gifcreator/gifcreator_test.go
+//from root of repo
 func TestStartJob(t *testing.T) {
 	scenePath = "/tmp/scene"
 	ctx := context.Background()
