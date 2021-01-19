@@ -12,7 +12,6 @@ steps:
       - go build -v
       - go test -v
 
-service:
- - name: redisdb
+services:
+ - name: database
    image: redis:5
-  
