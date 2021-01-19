@@ -6,3 +6,4 @@
 - fix frontend
 - document required env vars
 - add defaults as well as error handling for the env vars
+- minio server in drone.yml
