@@ -32,6 +32,7 @@ import (
 	"image"
 	"image/gif"
 	"image/png"
+	"io"
 	"log"
 	"net"
 	"os"
@@ -350,6 +351,7 @@ func compileGifs(prefix string, tCtx context.Context) (string, error) {
 		orderedObjects = append(orderedObjects, minioObj) //might need pointer to object instead of just object
 	}
 
+	//TODO: something is going wrong and finalGif ends up empty
 	finalGif := &gif.GIF{}
 	for _, frameObj := range orderedObjects {
 		object, err := minioClient.GetObject(ctx, "gifbucket", frameObj.Key, minio.GetObjectOptions{})
@@ -377,20 +379,22 @@ func compileGifs(prefix string, tCtx context.Context) (string, error) {
 	}
 
 	finalObjName := prefix + "animated.gif"
-	//finalGifBytes := bytes.NewReader(finalGif)
-	//finalGifBytesIOReader := bytes.NewReader([]byte(finalGif))
-	// TODO: need to save the gif struct as object
-	uploadInfo, err := minioClient.PutObject(ctx, "gifbucket", finalObjName, /*gif io.Reader here*/, -1, minio.PutObjectOptions{ContentType: "image/gif"})
+
+	log.Println("final gif:", finalGif)
+
+	pr, pw := io.Pipe()
+	gif.EncodeAll(pw, finalGif)
+	pw.Close()
+	uploadInfo, err := minioClient.PutObject(ctx, "gifbucket", finalObjName, pr, -1, minio.PutObjectOptions{ContentType: "image/gif"})
 	if err != nil {
 		fmt.Println(err)
 		return "", err
 	}
 	fmt.Println("Successfully uploaded bytes: ", uploadInfo)
-
 	// TODO: set final minio object to be public and return the link to it
 	//return gcsBucketName + ".storage.googleapis.com/" + finalObjName, nil
 	// TODO: don't ignore the above TODO and change what is returned
-	presignedURL, err := minioClient.PresignedGetObject(context.Background(), "gifbucket", finalObjName, time.Second * 24 * 60 * 60, nil)
+	presignedURL, err := minioClient.PresignedGetObject(ctx, "gifbucket", finalObjName, time.Second*24*60*60, nil)
 	if err != nil {
 		return "", err
 	}
