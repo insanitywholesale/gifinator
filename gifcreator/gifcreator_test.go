@@ -12,10 +12,12 @@ import (
 	"time"
 )
 
-//scenePath, redisClient and server should be changed
-//in order to be able to run go test gifcreator/gifcreator_test.go
-//from root of repo
-//TODO: this test errors out, need to fix renderer or leaseNextTask or both
+// TODO: tests b bork; two different instances (one in server mode, one in worker mode) are needed
+
+// scenePath, redisClient and server should be changed
+// in order to be able to run go test gifcreator/gifcreator_test.go
+// from root of repo
+// TODO: this test errors out, need to fix renderer or leaseNextTask or both
 func TestStartJob(t *testing.T) {
 	// set up base variables
 	scenePath = "/tmp/scene"

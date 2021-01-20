@@ -17,13 +17,13 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"github.com/fogleman/pt/pt"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
 	pb "gitlab.com/insanitywholesale/gifinator/proto"
 	"google.golang.org/grpc"
-	"context"
 	"log"
 	"math/rand"
 	"net"

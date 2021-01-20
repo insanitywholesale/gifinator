@@ -13,6 +13,7 @@ import (
 	"testing"
 )
 
+// this test is pretty bs, needs improvements
 func TestRenderFrame(t *testing.T) {
 	ctx := context.Background()
 	const bufSize = 1024 * 1024

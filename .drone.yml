@@ -14,6 +14,8 @@ steps:
   - name: render
     image: golang
     commands:
+      - mkdir /tmp/objcache
+      - cp -r gifcreator/scene /tmp/
       - cd render
       - go get -v
       - go build -v

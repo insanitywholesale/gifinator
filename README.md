@@ -3,16 +3,19 @@
 fork of https://github.com/GoogleCloudPlatform/gifinator to run locally and use minio for storage instead of gcs.
 look at TODO for what's left to be done (hint: it's a lot).
 
-# running
+# running (for development)
 
-## env vars
-all of the parts need certain environment variables to be set
+## redis (port 6379) and minio (port 9000)
+from the root of the repo, run `./rundeps.sh`
 
-## render
-this one is pretty simple, set the env vars and run
+## render (port 8080)
+this one is pretty simple, use `go run render.go`
 
-## gifcreator
-two instances need to be running, one in server mode and the other in worker mode
+## gifcreator (worker port 8081, server port 8082)
+go into its directory and run `./rungifcreator.sh`
 
-## frontend
-can't be bothered with the pixel-pushing stuff for now
+## frontend (port 8090)
+also pretty simple, from inside its directory run `./runfront.sh`
+
+## tests are broken at the moment
+imma try to fix them, no promises tho
