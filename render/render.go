@@ -140,9 +140,9 @@ func (server) RenderFrame(ctx context.Context, req *pb.RenderRequest) (*pb.Rende
 }
 
 func main() {
-	endpoint := "truenas.hell:9000"
-	accessKeyID := "katie"
-	secretAccessKey := "Asus_hol1"
+	endpoint := "localhost:9000"
+	accessKeyID := "minioaccesskeyid"
+	secretAccessKey := "miniosecretaccesskey"
 	useSSL := false
 
 	// Initialize minio client object.

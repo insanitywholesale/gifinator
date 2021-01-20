@@ -19,9 +19,9 @@ func TestRenderFrame(t *testing.T) {
 	var listener *bufconn.Listener
 	listener = bufconn.Listen(bufSize)
 	// minio client data
-	endpoint := "truenas.hell:9000"
-	accessKeyID := "katie"
-	secretAccessKey := "Asus_hol1"
+	endpoint := "localhost:9000"
+	accessKeyID := "minioaccesskeyid"
+	secretAccessKey := "miniosecretaccesskey"
 	useSSL := false
 
 	// Initialize minio client object.

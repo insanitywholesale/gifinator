@@ -57,12 +57,16 @@ type renderTask struct {
 }
 
 var (
-	redisClient   *redis.Client
-	renderClient  pb.RenderClient
-	scenePath     string
-	deploymentId  string
-	workerMode    = flag.Bool("worker", false, "run in worker mode rather than server")
-	gcsBucketName string //TODO: minio
+	redisClient     *redis.Client
+	renderClient    pb.RenderClient
+	scenePath       string
+	deploymentId    string
+	workerMode      = flag.Bool("worker", false, "run in worker mode rather than server")
+	gcsBucketName   string //TODO: minio
+	endpoint        = "localhost:9000"
+	accessKeyID     = "minioaccesskeyid"
+	secretAccessKey = "miniosecretaccesskey"
+	useSSL          = false
 )
 
 // inputPath kinda sus
@@ -128,9 +132,9 @@ func (server) StartJob(ctx context.Context, req *pb.StartJobRequest) (*pb.StartJ
 		return nil, err
 	}
 
-	minioClient, err := minio.New("truenas.hell:9000", &minio.Options{
-		Creds:  credentials.NewStaticV4("katie", "Asus_hol1", ""),
-		Secure: false,
+	minioClient, err := minio.New(endpoint, &minio.Options{
+		Creds:  credentials.NewStaticV4(accessKeyID, secretAccessKey, ""),
+		Secure: useSSL,
 	})
 	if err != nil {
 		log.Println("error making minio client", err)
@@ -329,9 +333,9 @@ func leaseNextTask() error {
  * path of the final image
  */
 func compileGifs(prefix string, tCtx context.Context) (string, error) {
-	minioClient, err := minio.New("truenas.hell:9000", &minio.Options{
-		Creds:  credentials.NewStaticV4("katie", "Asus_hol1", ""),
-		Secure: false,
+	minioClient, err := minio.New(endpoint, &minio.Options{
+		Creds:  credentials.NewStaticV4(accessKeyID, secretAccessKey, ""),
+		Secure: useSSL,
 	})
 	if err != nil {
 		log.Println("error making minio client", err)
@@ -408,7 +412,7 @@ func compileGifs(prefix string, tCtx context.Context) (string, error) {
 	// TODO: set final minio object to be public and return the link to it
 	//return gcsBucketName + ".storage.googleapis.com/" + finalObjName, nil
 	// TODO: don't ignore the above TODO and change what is returned
-	return "http://truenas.hell:9000/minio/gifbucket/" + finalObjName, nil
+	return "http://localhost:9000/minio/gifbucket/" + finalObjName, nil
 }
 
 func (server) GetJob(ctx context.Context, req *pb.GetJobRequest) (*pb.GetJobResponse, error) {
@@ -429,7 +433,6 @@ func (server) GetJob(ctx context.Context, req *pb.GetJobRequest) (*pb.GetJobResp
 func main() {
 	flag.Parse()
 	port := os.Getenv("GIFCREATOR_PORT")
-	port = "9191"
 	i, err := strconv.Atoi(port)
 	if (err != nil) || (i < 1) {
 		log.Fatalf("please set env var GIFCREATOR_PORT to a valid port")
@@ -438,7 +441,6 @@ func main() {
 	// TODO(jessup) Need stricter checking here.
 	redisName := os.Getenv("REDIS_NAME")
 	redisPort := os.Getenv("REDIS_PORT")
-	//projectID := os.Getenv("GOOGLE_PROJECT_ID")
 	renderName := os.Getenv("RENDER_NAME")
 	renderPort := os.Getenv("RENDER_PORT")
 	renderHostAddr := renderName + ":" + renderPort

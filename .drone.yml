@@ -3,6 +3,22 @@ type: kubernetes
 name: default
 
 steps:
+  - name: minio
+    image: minio/mc
+    commands:
+      - mc config host add myminio http://localhost:9000 minioaccesskeyid miniosecretaccesskey
+      - mc rm -r --force myminio/gifbucket
+      - mc mb myminio/gifbucket
+      - mc policy download myminio/gifbucket
+
+  - name: render
+    image: golang
+    commands:
+      - cd render
+      - go get -v
+      - go build -v
+      - go test -v
+
   - name: gifcreator
     image: golang
     commands:
@@ -12,6 +28,10 @@ steps:
       - go build -v
       - go test -v
 
+
 services:
- - name: database
-   image: redis:5
+- name: minio
+  image: minio/minio
+
+- name: database
+  image: redis:5
