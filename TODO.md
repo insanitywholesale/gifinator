@@ -3,8 +3,6 @@
 - update redis api from v5 to v8
 - fix kubernetes manifests
 - write tests
-- fix frontend
 - document required env vars
 - add defaults as well as error handling for the env vars
-- minio server in drone.yml
-- fix leaseNextTask and renderer(line 46 and 101 cause nil pointer dereference)
+- fix actual behavior (works but the final object can't be viewed and doesn't seem to exist)

@@ -6,7 +6,7 @@ steps:
   - name: minio
     image: minio/mc
     commands:
-      - mc config host add myminio http://localhost:9000 minioaccesskeyid miniosecretaccesskey
+      - mc config host add myminio http://localhost:9000 minioadmin minioadmin
       - mc rm -r --force myminio/gifbucket
       - mc mb myminio/gifbucket
       - mc policy download myminio/gifbucket

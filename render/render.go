@@ -23,7 +23,6 @@ import (
 	"github.com/minio/minio-go/v7/pkg/credentials"
 	pb "gitlab.com/insanitywholesale/gifinator/proto"
 	"google.golang.org/grpc"
-	//"io/ioutil"
 	"context"
 	"log"
 	"math/rand"
@@ -43,9 +42,11 @@ var (
 func cacheMinioObjToDisk(ctx context.Context, fileName string) (string, error) {
 	basePath := "/tmp/objcache"
 	fullPath := basePath + "/" + fileName
-	err := minioClient.FGetObject(ctx, "gifbucket", fileName, fullPath, minio.GetObjectOptions{})
+	log.Println("filename", fileName)
+	err := minioClient.FGetObject(context.Background(), "gifbucket", fileName, fullPath, minio.GetObjectOptions{})
 	if err != nil {
 		fmt.Println("err:", err)
+		return "", err
 	}
 	return fullPath, nil
 }
@@ -146,14 +147,15 @@ func main() {
 	useSSL := false
 
 	// Initialize minio client object.
-	minioClient, err := minio.New(endpoint, &minio.Options{
+	mC, err := minio.New(endpoint, &minio.Options{
 		Creds:  credentials.NewStaticV4(accessKeyID, secretAccessKey, ""),
 		Secure: useSSL,
 	})
-	log.Println("mC:", minioClient)
 	if err != nil {
 		log.Fatalln(err)
 	}
+	// SOMEHOW this line fixes the nil pointer dereference issue
+	minioClient = mC
 
 	// lines intentionally left blank
 

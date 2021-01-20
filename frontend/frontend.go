@@ -33,7 +33,6 @@ import (
 var (
 	templatePath string
 	staticPath   string
-	projectID    string // Google Console Project ID //TODO: change this
 	port         string
 
 	gcClient pb.GifCreatorClient
@@ -43,7 +42,6 @@ func main() {
 	// TODO(jbd): convert env vars into flags
 	templatePath = os.Getenv("FRONTEND_TEMPLATES_DIR")
 	staticPath = os.Getenv("FRONTEND_STATIC_DIR")
-	projectID = os.Getenv("GOOGLE_PROJECT_ID")
 	port = os.Getenv("FRONTEND_PORT")
 	gifcreatorPort := os.Getenv("GIFCREATOR_PORT")
 	gifcreatorName := os.Getenv("GIFCREATOR_NAME")

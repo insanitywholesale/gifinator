@@ -59,7 +59,7 @@ type renderTask struct {
 var (
 	redisClient     *redis.Client
 	renderClient    pb.RenderClient
-	scenePath       string
+	scenePath       = "/tmp/scene"
 	deploymentId    string
 	workerMode      = flag.Bool("worker", false, "run in worker mode rather than server")
 	gcsBucketName   string //TODO: minio
@@ -446,7 +446,7 @@ func main() {
 	renderHostAddr := renderName + ":" + renderPort
 	deploymentId = os.Getenv("DEPLOYMENT_ID")
 	gcsBucketName = os.Getenv("GCS_BUCKET_NAME")
-	scenePath = os.Getenv("SCENE_PATH")
+	//scenePath = os.Getenv("SCENE_PATH")
 
 	redisClient = redis.NewClient(&redis.Options{
 		Addr:     redisName + ":" + redisPort,
