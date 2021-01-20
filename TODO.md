@@ -7,3 +7,4 @@
 - document required env vars
 - add defaults as well as error handling for the env vars
 - minio server in drone.yml
+- fix leaseNextTask and renderer(line 46 and 101 cause nil pointer dereference)

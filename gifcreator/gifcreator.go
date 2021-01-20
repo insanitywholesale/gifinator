@@ -255,15 +255,21 @@ func leaseNextTask() error {
 
 	// TODO: path stuff and render request with gcsBucketName absolutely offenders
 	outputPrefix := "out." + jobIdStr
-	outputBasePath := gcsBucketName + "/" + outputPrefix
+	//outputBasePath := gcsBucketName + "/" + outputPrefix
 	req := &pb.RenderRequest{
-		GcsOutputBase: outputBasePath,
-		ObjPath:       gcsBucketName + "/job_" + jobIdStr + ".obj",
+		GcsOutputBase: "gifbucket",
+		ObjPath:       "job_" + jobIdStr + ".obj",
 		Assets: []string{
-			gcsBucketName + "/job_" + jobIdStr + ".mtl",
-			gcsBucketName + "/job_" + jobIdStr + "_badge.png",
-			gcsBucketName + "/k8s.png",
-			gcsBucketName + "/grpc.png",
+			"job_" + jobIdStr + ".mtl",
+			"job_" + jobIdStr + "_badge.png",
+			"k8s.png",
+			"grpc.png",
+			/*
+				gcsBucketName + "/job_" + jobIdStr + ".mtl",
+				gcsBucketName + "/job_" + jobIdStr + "_badge.png",
+				gcsBucketName + "/k8s.png",
+				gcsBucketName + "/grpc.png",
+			*/
 		},
 		Rotation:   float32(task.Frame*2 + 20),
 		Iterations: 1,
