@@ -14,6 +14,16 @@ import (
 
 // TODO: tests b bork; two different instances (one in server mode, one in worker mode) are needed
 
+func TestCompileGifs(t *testing.T) {
+	prefix := "out."
+	tCtx := context.Background()
+	link, err := compileGifs(prefix, tCtx)
+	if err != nil {
+		t.Fatal("failed to compile gif", err)
+	}
+	log.Println("link:", link)
+}
+
 // scenePath, redisClient and server should be changed
 // in order to be able to run go test gifcreator/gifcreator_test.go
 // from root of repo
