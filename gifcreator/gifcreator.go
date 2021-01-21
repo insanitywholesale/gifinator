@@ -341,8 +341,9 @@ func compileGifs(prefix string, tCtx context.Context) (string, error) {
 
 	defer cancel()
 
+	//TODO:objectCh is a channel, needs to be handled properly
 	objectCh := minioClient.ListObjects(ctx, "gifbucket", minio.ListObjectsOptions{Prefix: prefix})
-
+	//TODO: orderedObjects ends up empty
 	var orderedObjects []minio.ObjectInfo
 	for minioObj := range objectCh {
 		if minioObj.Err != nil {
