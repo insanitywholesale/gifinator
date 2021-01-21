@@ -29,7 +29,7 @@ import (
 	"net"
 	"os"
 	"strconv"
-	"strings"
+	//"strings"
 )
 
 type server struct{}
@@ -130,8 +130,8 @@ func (server) RenderFrame(ctx context.Context, req *pb.RenderRequest) (*pb.Rende
 	// I winged it and didn't think about what happens when it returns -1
 	// AKA what happens when the imgPath is not GCS-related
 
-	imgFileName := strings.TrimLeft(imgPath[strings.LastIndex(imgPath, "/"):], "/")
-	uploadInfo, err := minioClient.FPutObject(ctx, "gifbucket", imgFileName, imgPath, minio.PutObjectOptions{})
+	//imgFileName := strings.TrimLeft(imgPath[strings.LastIndex(imgPath, "/"):], "/")
+	uploadInfo, err := minioClient.FPutObject(ctx, "gifbucket", imgFinalName, imgPath, minio.PutObjectOptions{})
 	if err != nil {
 		log.Println("error uploading image to minio", err)
 	}

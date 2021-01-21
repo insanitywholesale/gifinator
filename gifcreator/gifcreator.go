@@ -259,10 +259,10 @@ func leaseNextTask() error {
 	}
 
 	// TODO: path stuff and render request with gcsBucketName absolutely offenders
-	outputPrefix := "out." + jobIdStr
+	//outputPrefix := "out." + jobIdStr
 	//outputBasePath := gcsBucketName + "/" + outputPrefix
 	req := &pb.RenderRequest{
-		GcsOutputBase: "gifbucket",
+		GcsOutputBase: "jobnum" + jobIdStr, //this is the prefix for all/most objects of this job
 		ObjPath:       "job_" + jobIdStr + ".obj",
 		Assets: []string{
 			"job_" + jobIdStr + ".mtl",
@@ -302,7 +302,7 @@ func leaseNextTask() error {
 	queueLengthInt, _ := strconv.ParseInt(queueLength, 10, 64)
 	fmt.Fprintf(os.Stdout, "job_gifjob_%s : %d of %d tasks done\n", jobIdStr, completedTaskCount, queueLengthInt)
 	if completedTaskCount == queueLengthInt {
-		finalImagePath, err := compileGifs(outputPrefix, context.Background())
+		finalImagePath, err := compileGifs(req.GcsOutputBase, context.Background())
 		if err != nil {
 			return err
 		}
@@ -328,6 +328,7 @@ func leaseNextTask() error {
  * path of the final image
  */
 func compileGifs(prefix string, tCtx context.Context) (string, error) {
+	log.Println("prefix is", prefix)
 	minioClient, err := minio.New(endpoint, &minio.Options{
 		Creds:  credentials.NewStaticV4(accessKeyID, secretAccessKey, ""),
 		Secure: useSSL,
@@ -342,12 +343,13 @@ func compileGifs(prefix string, tCtx context.Context) (string, error) {
 	defer cancel()
 
 	//TODO:objectCh is a channel, needs to be handled properly
-	objectCh := minioClient.ListObjects(ctx, "gifbucket", minio.ListObjectsOptions{Prefix: prefix})
+	objectCh := minioClient.ListObjects(tCtx, "gifbucket", minio.ListObjectsOptions{Prefix: prefix})
 	//TODO: orderedObjects ends up empty
 	var orderedObjects []minio.ObjectInfo
 	for minioObj := range objectCh {
 		if minioObj.Err != nil {
 			fmt.Println("object error:", minioObj.Err)
+			return "", minioObj.Err
 		}
 		orderedObjects = append(orderedObjects, minioObj) //might need pointer to object instead of just object
 	}
