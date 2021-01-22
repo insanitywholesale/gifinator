@@ -11,9 +11,9 @@ COPY ./frontend/templates /templates
 COPY ./gifcreator/scene /scene
 
 # Add trusted CA root bundles
-RUN   apk update \
-  &&   apk add ca-certificates wget \
-  &&   update-ca-certificates
+RUN apk update \
+	&&   apk add ca-certificates wget \
+	&&   update-ca-certificates
 
 ENV FRONTEND_TEMPLATES_DIR=/templates
 ENV FRONTEND_STATIC_DIR=/static
