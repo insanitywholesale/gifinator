@@ -9,7 +9,7 @@ import (
 	"log"
 	"net"
 	"testing"
-	//"time"
+	"time"
 )
 
 // TODO: tests b bork; two different instances (one in server mode, one in worker mode) are needed
@@ -30,6 +30,7 @@ func TestCompileGifs(t *testing.T) {
 // from root of repo
 // TODO: this test errors out, need to fix renderer or leaseNextTask or both
 func TestStartJob(t *testing.T) {
+
 	// set up base variables
 	scenePath = "/tmp/scene"
 	ctx := context.Background()
@@ -83,7 +84,6 @@ func TestStartJob(t *testing.T) {
 
 }
 
-/*
 func TestWorkerMode(t *testing.T) {
 	// set up base variables
 	*workerMode = true
@@ -117,5 +117,3 @@ func TestWorkerMode(t *testing.T) {
 	conn.Close()
 	// needs additions to actually test
 }
-
-*/
