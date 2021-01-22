@@ -6,10 +6,10 @@ steps:
   - name: minioclient
     image: minio/mc
     commands:
-      - sleep 35
+      - sleep 30
       - mc config host add myminio http://localhost:9000 minioadmin minioadmin
       - mc mb -p myminio/gifbucket
-      - mc policy download myminio/gifbucket
+      - mc policy set download myminio/gifbucket
 
   - name: render
     image: golang
