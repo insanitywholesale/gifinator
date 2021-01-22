@@ -35,7 +35,7 @@ steps:
 services:
 - name: minioserver
   image: minio/minio
-  command: [ server ]
+  command: [ server /data ]
 
 - name: database
   image: redis:5
