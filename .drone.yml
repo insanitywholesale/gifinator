@@ -6,7 +6,7 @@ steps:
   - name: minioclient
     image: minio/mc
     commands:
-      - sleep 15
+      - sleep 35
       - mc config host add myminio http://localhost:9000 minioadmin minioadmin
       - mc rm -r --force myminio/gifbucket
       - mc mb myminio/gifbucket
