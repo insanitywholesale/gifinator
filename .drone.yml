@@ -8,8 +8,7 @@ steps:
     commands:
       - sleep 35
       - mc config host add myminio http://localhost:9000 minioadmin minioadmin
-      - mc rm -r --force myminio/gifbucket
-      - mc mb myminio/gifbucket
+      - mc mb -p myminio/gifbucket
       - mc policy download myminio/gifbucket
 
   - name: render
