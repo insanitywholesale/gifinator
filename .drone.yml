@@ -3,31 +3,39 @@ type: kubernetes
 name: default
 
 steps:
-  - name: minioclient
-    image: minio/mc
-    commands:
-      - sleep 30
-      - mc config host add myminio http://localhost:9000 minioaccesskeyid miniosecretaccesskey
-      - mc mb -p myminio/gifbucket
-      - mc policy set download myminio/gifbucket
+- name: minioclient
+  image: minio/mc
+  commands:
+  - sleep 30
+  - mc config host add myminio http://localhost:9000 minioaccesskeyid miniosecretaccesskey
+  - mc mb -p myminio/gifbucket
+  - mc policy set download myminio/gifbucket
 
-  - name: render
-    image: golang
-    commands:
-      - mkdir /tmp/objcache
-      - cd render
-      - go get -v
-      - go build -v
-      - go test -v
+- name: render
+  image: golang
+  commands:
+  - mkdir /tmp/objcache
+  - cd render
+  - go get -v
+  - go build -v
+  - go test -v
 
-  - name: gifcreator
-    image: golang
-    commands:
-      - cd gifcreator
-      - cp -r scene /tmp
-      - go get -v
-      - go build -v
-      - go test -v
+- name: renderer
+  image: golang
+  commands:
+  - mkdir /tmp/objcache
+  - cd render
+  - go run render.go
+  detach: true
+
+- name: gifcreator
+  image: golang
+  commands:
+  - cd gifcreator
+  - cp -r scene /tmp
+  - go get -v
+  - go build -v
+  - go test -v
 
 
 services:

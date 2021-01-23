@@ -63,7 +63,6 @@ var (
 	scenePath       = "/tmp/scene"
 	deploymentId    string
 	workerMode      = flag.Bool("worker", false, "run in worker mode rather than server")
-	gcsBucketName   string //TODO: minio
 	endpoint        = "localhost:9000"
 	accessKeyID     = "minioaccesskeyid"
 	secretAccessKey = "miniosecretaccesskey"
@@ -258,9 +257,6 @@ func leaseNextTask() error {
 		return err
 	}
 
-	// TODO: path stuff and render request with gcsBucketName absolutely offenders
-	//outputPrefix := "out." + jobIdStr
-	//outputBasePath := gcsBucketName + "/" + outputPrefix
 	req := &pb.RenderRequest{
 		GcsOutputBase: "jobnum" + jobIdStr, //this is the prefix for all/most objects of this job
 		ObjPath:       "job_" + jobIdStr + ".obj",
@@ -389,7 +385,6 @@ func compileGifs(prefix string, tCtx context.Context) (string, error) {
 	err = gif.EncodeAll(gifBuffer, finalGif)
 	err = upload(gifBuffer.Bytes() /*this is outputPath*/, finalObjName, "image/gif", minioClient, ctx)
 	// TODO: set final minio object to be public and return the link to it
-	//return gcsBucketName + ".storage.googleapis.com/" + finalObjName, nil
 	// TODO: don't ignore the above TODO and change what is returned
 	presignedURL, err := minioClient.PresignedGetObject(ctx, "gifbucket", finalObjName, time.Second*24*60*60, nil)
 	if err != nil {
@@ -428,7 +423,6 @@ func main() {
 	renderPort := os.Getenv("RENDER_PORT")
 	renderHostAddr := renderName + ":" + renderPort
 	deploymentId = os.Getenv("DEPLOYMENT_ID")
-	gcsBucketName = os.Getenv("GCS_BUCKET_NAME")
 	//scenePath = os.Getenv("SCENE_PATH")
 
 	redisClient = redis.NewClient(&redis.Options{

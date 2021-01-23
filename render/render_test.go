@@ -35,8 +35,6 @@ func TestRenderFrame(t *testing.T) {
 	}
 	minioClient = mC
 
-	gcsCacheDir = os.TempDir()
-
 	uploadInfo, err := minioClient.FPutObject(ctx, "gifbucket", "test-airboat.obj", "../gifcreator/scene/airboat.obj", minio.PutObjectOptions{})
 	if err != nil {
 		log.Println("error uploading image to minio", err)

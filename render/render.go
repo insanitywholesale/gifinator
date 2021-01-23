@@ -35,7 +35,6 @@ import (
 type server struct{}
 
 var (
-	gcsCacheDir string
 	minioClient *minio.Client
 )
 
@@ -157,8 +156,6 @@ func main() {
 	// SOMEHOW this line fixes the nil pointer dereference issue
 	minioClient = mC
 
-	// lines intentionally left blank
-
 	serving_port := os.Getenv("RENDER_PORT")
 	if serving_port == "" {
 		serving_port = "8080"
@@ -176,7 +173,6 @@ func main() {
 	}
 	log.Println("running on port:", serving_port)
 
-	gcsCacheDir = os.TempDir()
 
 	srv := grpc.NewServer()
 	pb.RegisterRenderServer(srv, server{})
