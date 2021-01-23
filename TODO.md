@@ -1,8 +1,6 @@
-- render seems to be working, more testing required
-- gifcreator  seems to do something but functionality is probably incomplete
 - update redis api from v5 to v8
 - fix kubernetes manifests
-- write tests
 - document required env vars
 - add defaults as well as error handling for the env vars
-- fix actual behavior (works but the final object can't be viewed and doesn't seem to exist)
+- fix actual behavior (works but link returned to frontend is wrong)
+- fix gif being all black as if texture is not applied to it
