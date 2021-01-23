@@ -9,7 +9,6 @@ import (
 	"google.golang.org/grpc/test/bufconn"
 	"log"
 	"net"
-	"os"
 	"testing"
 )
 
@@ -33,6 +32,8 @@ func TestRenderFrame(t *testing.T) {
 	if err != nil {
 		t.Log("minioClient oopsie:", err)
 	}
+
+	// gets rid of nil pointer dereference for SOME reason
 	minioClient = mC
 
 	uploadInfo, err := minioClient.FPutObject(ctx, "gifbucket", "test-airboat.obj", "../gifcreator/scene/airboat.obj", minio.PutObjectOptions{})
