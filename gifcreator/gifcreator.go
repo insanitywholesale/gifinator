@@ -300,6 +300,7 @@ func leaseNextTask() error {
 		if err != nil {
 			return err
 		}
+
 		fmt.Fprintf(os.Stdout, "final image path: %s\n", finalImagePath)
 		var job = renderJob{
 			Status:         pb.GetJobResponse_DONE,
@@ -381,7 +382,7 @@ func compileGifs(prefix string, tCtx context.Context) (string, error) {
 
 	gifBuffer := new(bytes.Buffer)
 	err = gif.EncodeAll(gifBuffer, finalGif)
-	err = upload(gifBuffer.Bytes() /*this is outputPath*/, finalObjName, "image/gif", minioClient, ctx)
+	err = upload(gifBuffer.Bytes(), finalObjName, "image/gif", minioClient, ctx)
 	// TODO: set final minio object to be public and return the link to it
 	// TODO: don't ignore the above TODO and change what is returned
 	presignedURL, err := minioClient.PresignedGetObject(ctx, "gifbucket", finalObjName, time.Second*24*60*60, nil)
