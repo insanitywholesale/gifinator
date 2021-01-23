@@ -17,3 +17,11 @@ go into its directory and run `./rungifcreator.sh`
 
 ## frontend (port 8090)
 also pretty simple, from inside its directory run `./runfront.sh`
+
+## visit web page
+access http://localhost:8090 using a web browser, fill in the text, select one of the 3 options and click Create
+
+## link is broken
+the link returned to the frontend is broken so in order to see the image,
+go to the terminal that is running `./rungifcreator.sh` then copy and paste the link
+that doesn't have anything  with `\u` in it to the browser to see the final gif
