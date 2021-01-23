@@ -385,19 +385,9 @@ func compileGifs(prefix string, tCtx context.Context) (string, error) {
 
 	log.Println("final gif:", finalGif)
 
-	//pr, pw := io.Pipe()
-	//gif.EncodeAll(pw, finalGif)
-	//pw.Close()
-	//uploadInfo, err := minioClient.PutObject(ctx, "gifbucket", finalObjName, pr, -1, minio.PutObjectOptions{ContentType: "image/gif"})
-	//if err != nil {
-	//	fmt.Println(err)
-	//	return "", err
-	//}
-
 	gifBuffer := new(bytes.Buffer)
 	err = gif.EncodeAll(gifBuffer, finalGif)
 	err = upload(gifBuffer.Bytes() /*this is outputPath*/, finalObjName, "image/gif", minioClient, ctx)
-	//fmt.Println("Successfully uploaded bytes: ", uploadInfo)
 	// TODO: set final minio object to be public and return the link to it
 	//return gcsBucketName + ".storage.googleapis.com/" + finalObjName, nil
 	// TODO: don't ignore the above TODO and change what is returned

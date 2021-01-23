@@ -33,10 +33,15 @@ func TestRenderFrame(t *testing.T) {
 	if err != nil {
 		t.Log("minioClient oopsie:", err)
 	}
-	//log.Println("mC:", minioClient)
 	minioClient = mC
 
 	gcsCacheDir = os.TempDir()
+
+	uploadInfo, err := minioClient.FPutObject(ctx, "gifbucket", "test-airboat.obj", "../gifcreator/scene/airboat.obj", minio.PutObjectOptions{})
+	if err != nil {
+		log.Println("error uploading image to minio", err)
+	}
+	log.Println("uploaded:", uploadInfo)
 
 	srv := grpc.NewServer()
 	pb.RegisterRenderServer(srv, server{})
@@ -58,12 +63,11 @@ func TestRenderFrame(t *testing.T) {
 	}
 	defer conn.Close()
 	client := pb.NewRenderClient(conn)
-	//renderRequest := /* TODO: fill this in */
 	renderRequest := &pb.RenderRequest{
-		GcsOutputBase: "gifbucket",
-		ObjPath:       "airboat.obj",
+		GcsOutputBase: "testjob",
+		ObjPath:       "test-airboat.obj",
 		Assets:        []string{},
-		Rotation:      2.0,
+		Rotation:      7.0,
 		Iterations:    1,
 	}
 	res, err := client.RenderFrame(ctx, renderRequest)
