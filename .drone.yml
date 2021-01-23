@@ -7,7 +7,7 @@ steps:
     image: minio/mc
     commands:
       - sleep 30
-      - mc config host add myminio http://localhost:9000 minioadmin minioadmin
+      - mc config host add myminio http://localhost:9000 minioaccesskeyid miniosecretaccesskey
       - mc mb -p myminio/gifbucket
       - mc policy set download myminio/gifbucket
 
@@ -34,6 +34,9 @@ services:
 - name: minioserver
   image: minio/minio
   command: [ "server", "/data" ]
+  environment:
+    MINIO_ACCESS_KEY: minioaccesskeyid
+    MINIO_SECRET_KEY: miniosecretaccesskey
 
 - name: database
   image: redis:5
