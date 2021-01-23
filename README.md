@@ -4,6 +4,7 @@ fork of https://github.com/GoogleCloudPlatform/gifinator to run locally and use 
 look at TODO for what's left to be done (hint: it's a lot).
 
 # running (for development)
+the following should be run in the order they are listed and each one in a different terminal
 
 ## redis (port 6379) and minio (port 9000)
 from the root of the repo, run `./rundeps.sh`
@@ -16,6 +17,3 @@ go into its directory and run `./rungifcreator.sh`
 
 ## frontend (port 8090)
 also pretty simple, from inside its directory run `./runfront.sh`
-
-## tests are broken at the moment
-imma try to fix them, no promises tho

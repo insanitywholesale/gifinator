@@ -32,7 +32,6 @@ import (
 	"image"
 	"image/gif"
 	"image/png"
-	//"io"
 	"log"
 	"net"
 	"os"
@@ -85,7 +84,6 @@ func transform(inputPath string, jobId string) (bytes.Buffer, error) {
 
 func upload(outBytes []byte, outputPath string, mimeType string, client *minio.Client, ctx context.Context) error {
 	log.Println("outputPath:", outputPath)
-	//objName := strings.TrimLeft(outputPath[strings.LastIndex(outputPath, "/"):], "/")
 	objName := outputPath
 	uploadInfo, err := client.PutObject(ctx, "gifbucket", objName, bytes.NewReader(outBytes), int64(len(outBytes)), minio.PutObjectOptions{ContentType: mimeType})
 	if err != nil {
@@ -339,7 +337,7 @@ func compileGifs(prefix string, tCtx context.Context) (string, error) {
 	defer cancel()
 
 	//TODO:objectCh is a channel, needs to be handled properly
-	objectCh := minioClient.ListObjects(tCtx, "gifbucket", minio.ListObjectsOptions{Prefix: prefix})
+	objectCh := minioClient.ListObjects(ctx, "gifbucket", minio.ListObjectsOptions{Prefix: prefix})
 	//TODO: orderedObjects ends up empty
 	var orderedObjects []minio.ObjectInfo
 	for minioObj := range objectCh {
