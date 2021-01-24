@@ -62,9 +62,10 @@ var (
 	scenePath       string
 	deploymentId    string
 	workerMode      = flag.Bool("worker", false, "run in worker mode rather than server")
-	endpoint        = "localhost:9000"
-	accessKeyID     = "minioaccesskeyid"
-	secretAccessKey = "miniosecretaccesskey"
+	minioBucket     string
+	endpoint        string
+	accessKeyID     string
+	secretAccessKey string
 	useSSL          = false
 )
 
@@ -85,7 +86,7 @@ func transform(inputPath string, jobId string) (bytes.Buffer, error) {
 func upload(outBytes []byte, outputPath string, mimeType string, client *minio.Client, ctx context.Context) error {
 	log.Println("outputPath:", outputPath)
 	objName := outputPath
-	uploadInfo, err := client.PutObject(ctx, "gifbucket", objName, bytes.NewReader(outBytes), int64(len(outBytes)), minio.PutObjectOptions{ContentType: mimeType})
+	uploadInfo, err := client.PutObject(ctx, minioBucket, objName, bytes.NewReader(outBytes), int64(len(outBytes)), minio.PutObjectOptions{ContentType: mimeType})
 	if err != nil {
 		fmt.Println(err)
 		return err
@@ -151,14 +152,12 @@ func (server) StartJob(ctx context.Context, req *pb.StartJobRequest) (*pb.StartJ
 		productString = "gopher"
 	}
 
-	// Generate the assets needed to render the frame, and push them to GCS
-	// TODO: this entire section kinda sus
-
+	// Generate the assets needed to render the frame, and upload them to minio
 	t, err := transform(scenePath+"/"+productString+".obj.tmpl", jobIdStr)
 	if err != nil {
 		return nil, err
 	}
-	err = upload(t.Bytes() /*this is outputPath*/, "job_"+jobIdStr+".obj", "binary/octet-stream", minioClient, ctx)
+	err = upload(t.Bytes(), "job_"+jobIdStr+".obj", "binary/octet-stream", minioClient, ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -166,7 +165,7 @@ func (server) StartJob(ctx context.Context, req *pb.StartJobRequest) (*pb.StartJ
 	if err != nil {
 		return nil, err
 	}
-	err = upload(t.Bytes() /*this is outputPath*/, "job_"+jobIdStr+".mtl", "binary/octet-stream", minioClient, ctx)
+	err = upload(t.Bytes(), "job_"+jobIdStr+".mtl", "binary/octet-stream", minioClient, ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -181,7 +180,7 @@ func (server) StartJob(ctx context.Context, req *pb.StartJobRequest) (*pb.StartJ
 	addLabel(badgeImg.(*image.NRGBA), 90, 120, req.Name)
 	buf := new(bytes.Buffer)
 	err = png.Encode(buf, badgeImg)
-	err = upload(buf.Bytes() /*this is outputPath*/, "job_"+jobIdStr+"_badge.png", "image/png", minioClient, ctx)
+	err = upload(buf.Bytes(), "job_"+jobIdStr+"_badge.png", "image/png", minioClient, ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -338,7 +337,7 @@ func compileGifs(prefix string, tCtx context.Context) (string, error) {
 	defer cancel()
 
 	//TODO:objectCh is a channel, needs to be handled properly
-	objectCh := minioClient.ListObjects(ctx, "gifbucket", minio.ListObjectsOptions{Prefix: prefix})
+	objectCh := minioClient.ListObjects(ctx, minioBucket, minio.ListObjectsOptions{Prefix: prefix})
 	//TODO: orderedObjects ends up empty
 	var orderedObjects []minio.ObjectInfo
 	for minioObj := range objectCh {
@@ -352,7 +351,7 @@ func compileGifs(prefix string, tCtx context.Context) (string, error) {
 	//TODO: something is going wrong and finalGif ends up empty
 	finalGif := &gif.GIF{}
 	for _, frameObj := range orderedObjects {
-		object, err := minioClient.GetObject(ctx, "gifbucket", frameObj.Key, minio.GetObjectOptions{})
+		object, err := minioClient.GetObject(ctx, minioBucket, frameObj.Key, minio.GetObjectOptions{})
 		if err != nil {
 			fmt.Println(err)
 			return "", err
@@ -410,12 +409,12 @@ func (server) GetJob(ctx context.Context, req *pb.GetJobRequest) (*pb.GetJobResp
 func main() {
 	flag.Parse()
 	port := os.Getenv("GIFCREATOR_PORT")
-	i, err := strconv.Atoi(port)
-	if (err != nil) || (i < 1) {
-		log.Fatalf("please set env var GIFCREATOR_PORT to a valid port")
+	if port == "" {
+		if *workerMode == true {
+			port = "8081"
+		}
+		port = "8082"
 	}
-
-	// TODO(jessup) Need stricter checking here.
 	redisName := os.Getenv("REDIS_NAME")
 	if redisName == "" {
 		redisName = "localhost"
@@ -436,6 +435,27 @@ func main() {
 	scenePath = os.Getenv("SCENE_PATH")
 	if scenePath == "" {
 		scenePath = "/tmp/scene"
+	}
+	minioName := os.Getenv("MINIO_NAME")
+	if minioName == "" {
+		minioName = "localhost"
+	}
+	minioPort := os.Getenv("MINIO_PORT")
+	if minioPort == "" {
+		minioPort = "9000"
+	}
+	endpoint = minioName + ":" + minioPort
+	accessKeyID := os.Getenv("MINIO_KEY")
+	if accessKeyID == "" {
+		accessKeyID = "minioaccesskeyid"
+	}
+	secretAccessKey := os.Getenv("MINIO_SECRET")
+	if secretAccessKey == "" {
+		secretAccessKey = "miniosecretaccesskey"
+	}
+	minioBucket := os.Getenv("MINIO_BUCKET")
+	if minioBucket == "" {
+		minioBucket = "gifbucket"
 	}
 
 	redisClient = redis.NewClient(&redis.Options{
