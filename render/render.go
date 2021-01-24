@@ -108,6 +108,10 @@ func (server) RenderFrame(ctx context.Context, req *pb.RenderRequest) (*pb.Rende
 	for _, element := range req.Assets {
 		assetGcsObj, err := minioClient.GetObject(ctx, "gifbucket", element /*maybe*/, minio.GetObjectOptions{})
 		if err != nil {
+			fmt.Fprintf(os.Stderr, "error getting object %s, err: %v\n", req.ObjPath, err)
+		}
+		_, err = cacheMinioObjToDisk(ctx, element)
+		if err != nil {
 			fmt.Println("err caching object:", assetGcsObj, "error:", err)
 			return nil, err
 		}

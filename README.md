@@ -18,5 +18,8 @@ go into its directory and run `./rungifcreator.sh`
 ## frontend (port 8090)
 also pretty simple, from inside its directory run `./runfront.sh`
 
+## create bucket and load assets
+go to http://localhost:9000 and log in using the credentials `minioaccesskeyid` and `miniosecretaccesskey` then create a bucket named `gifbucket` and load all the assets in `gifcreator/scene` to it
+
 ## visit web page
 access http://localhost:8090 using a web browser, fill in the text, select one of the 3 options, click Create and wait
