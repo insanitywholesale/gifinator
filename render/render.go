@@ -177,7 +177,6 @@ func main() {
 	}
 	log.Println("running on port:", serving_port)
 
-
 	srv := grpc.NewServer()
 	pb.RegisterRenderServer(srv, server{})
 	srv.Serve(l)

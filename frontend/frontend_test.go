@@ -1,8 +1,8 @@
 package main
 
 import (
-	"testing"
 	"log"
+	"testing"
 )
 
 func TestFront(t *testing.T) {

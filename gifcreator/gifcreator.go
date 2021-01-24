@@ -59,7 +59,7 @@ type renderTask struct {
 var (
 	redisClient     *redis.Client
 	renderClient    pb.RenderClient
-	scenePath       = "/tmp/scene"
+	scenePath       string
 	deploymentId    string
 	workerMode      = flag.Bool("worker", false, "run in worker mode rather than server")
 	endpoint        = "localhost:9000"
@@ -417,12 +417,26 @@ func main() {
 
 	// TODO(jessup) Need stricter checking here.
 	redisName := os.Getenv("REDIS_NAME")
+	if redisName == "" {
+		redisName = "localhost"
+	}
 	redisPort := os.Getenv("REDIS_PORT")
+	if redisPort == "" {
+		redisPort = "6379"
+	}
 	renderName := os.Getenv("RENDER_NAME")
+	if renderName == "" {
+		redisName = "localhost"
+	}
 	renderPort := os.Getenv("RENDER_PORT")
+	if renderPort == "" {
+		redisPort = "8080"
+	}
 	renderHostAddr := renderName + ":" + renderPort
-	deploymentId = os.Getenv("DEPLOYMENT_ID")
-	//scenePath = os.Getenv("SCENE_PATH")
+	scenePath = os.Getenv("SCENE_PATH")
+	if scenePath == "" {
+		scenePath = "/tmp/scene"
+	}
 
 	redisClient = redis.NewClient(&redis.Options{
 		Addr:     redisName + ":" + redisPort,
