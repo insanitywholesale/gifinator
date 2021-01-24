@@ -2,5 +2,3 @@
 - fix kubernetes manifests
 - document required env vars
 - add defaults as well as error handling for the env vars
-- fix actual behavior (works but link returned to frontend is wrong)
-- fix gif being all black as if texture is not applied to it
