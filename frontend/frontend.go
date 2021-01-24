@@ -51,19 +51,8 @@ func main() {
 	fs := http.FileServer(http.Dir(staticPath))
 	gcHostAddr := gifcreatorName + ":" + gifcreatorPort
 
-	/*
-		ctx := context.Background()
-		tc, err := trace.NewClient(ctx, projectID, trace.EnableGRPCTracing)
-		if err != nil {
-			log.Fatal(err)
-		}
-		traceClient = tc
-	*/
-
-	// TODO(jessup) Create TLS certs
 	conn, err := grpc.Dial(gcHostAddr, grpc.WithInsecure())
 	if err != nil {
-		// TODO(jessup) Swap these out for proper logging
 		fmt.Fprintf(os.Stderr, "cannot connect to gifcreator %s\n%v", gcHostAddr, err)
 		return
 	}
@@ -108,11 +97,8 @@ func handleForm(w http.ResponseWriter, r *http.Request) {
 			renderForm(w, formErrors)
 			return
 		}
-		/*
-			// Submit answers, get task ID, and redirect...
-			span := traceClient.NewSpan("/memecreate") // TODO(jbd): make /memcreate top-level span optional
-			defer span.Finish()
-		*/
+		http.Redirect(w, r, "/memecreate", 301)
+		//Redirect to /memecreate
 		response, err := gcClient.StartJob(context.Background(), &pb.StartJobRequest{Name: gifName, ProductToPlug: mascotType})
 		if err != nil {
 			// TODO(jessup) Swap these out for proper logging

@@ -20,7 +20,7 @@ steps:
   - go build -v
   - go test -v
 
-- name: renderer
+- name: rendering
   image: golang
   commands:
   - mkdir /tmp/objcache
@@ -32,7 +32,22 @@ steps:
   image: golang
   commands:
   - cd gifcreator
+  - go get -v
+  - go build -v
+  - go test -v
+
+- name: gifcreatoring
+  image: golang
+  commands:
+  - cd gifcreator
   - cp -r scene /tmp
+  - ./rungifcreator.sh
+  detach: true
+
+- name: frontend
+  image: golang
+  commands:
+  - cd frontend
   - go get -v
   - go build -v
   - go test -v
