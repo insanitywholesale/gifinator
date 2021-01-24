@@ -32,6 +32,7 @@ steps:
   image: golang
   commands:
   - cd gifcreator
+  - cp -r scene /tmp/
   - go get -v
   - go build -v
   - go test -v
@@ -40,7 +41,7 @@ steps:
   image: golang
   commands:
   - cd gifcreator
-  - cp -r scene /tmp
+  - cp -r scene /tmp/
   - ./rungifcreator.sh
   detach: true
 
