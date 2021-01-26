@@ -20,8 +20,8 @@ metadata:
   name: render
 spec:
   ports:
-    - port: 12080
-      targetPort: 12080
+    - port: 8080
+      targetPort: 8080
   selector:
     app: render
   type: LoadBalancer

@@ -29,28 +29,24 @@ spec:
     spec:
       containers:
       - name: gifcreator-server
-        image: gcr.io/jessup-spinnaker-test/gifcreator:d29d90c2-8001-40aa-b665-e489c2d67c74 # TODO(jessup) Ideally this is dynamic
+        image: #TODO: fill in
         command: ["/gifcreator"]
         env:
         - name: GIFCREATOR_PORT
-          value: "11080"
+          value: "8082"
         - name: REDIS_PORT
           value: "6379"
         - name: REDIS_NAME
           value: "redis-master"
-        - name: GOOGLE_PROJECT_ID
-          value: "jessup-spinnaker-test" # TODO(jessup) Ideally this is dynamic
-        - name: GCS_BUCKET_NAME
-          value: "jessup-spinnaker-test-k8srenderdemo" # Configure this
         ports:
-        - containerPort: 11080 # TODO(jessup) figure out how to use this in config
+        - containerPort: 8082
 ---
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
   name: gifcreator-worker-deployment
 spec:
-  replicas: 20 # tells deployment to run 2 pods matching the template
+  replicas: 2 # tells deployment to run 2 pods matching the template
   template: # create pods using pod definition in this template
     metadata:
       # unlike pod-nginx.yaml, the name is not included in the meta data as a unique name is
@@ -60,11 +56,11 @@ spec:
     spec:
       containers:
       - name: gifcreator-worker
-        image: gcr.io/jessup-spinnaker-test/gifcreator:d29d90c2-8001-40aa-b665-e489c2d67c74 # TODO(jessup) Ideally this is dynamic
+        image: #TODO: fill in
         command: ["/gifcreator", "-worker"]
         env:
         - name: GIFCREATOR_PORT
-          value: "11080"
+          value: "8081"
         - name: REDIS_PORT
           value: "6379"
         - name: REDIS_NAME
@@ -72,10 +68,6 @@ spec:
         - name: RENDER_NAME
           value: "render"
         - name: RENDER_PORT
-          value: "12080"
-        - name: GOOGLE_PROJECT_ID
-          value: "jessup-spinnaker-test" # TODO(jessup) Ideally this is dynamic
-        - name: GCS_BUCKET_NAME
-          value: "jessup-spinnaker-test-k8srenderdemo" # Configure this
+          value: "8080"
         ports:
-        - containerPort: 11080 # TODO(jessup) figure out how to use this in config
+        - containerPort: 8081

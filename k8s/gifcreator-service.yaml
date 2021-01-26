@@ -20,8 +20,8 @@ metadata:
   name: gifcreator
 spec:
   ports:
-    - port: 11080
-      targetPort: 11080
+    - port: 8082
+      targetPort: 8082
   selector:
     app: gifcreator-server
   type: LoadBalancer
