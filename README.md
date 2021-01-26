@@ -23,3 +23,6 @@ go to http://localhost:9000 and log in using the credentials `minioaccesskeyid` 
 
 ## visit web page
 access http://localhost:8090 using a web browser, fill in the text, select one of the 3 options, click Create and wait
+
+# running (for production)
+there are eventually going to be kubernetes manifests for it in the `infra` repository under `kube/manifests`
