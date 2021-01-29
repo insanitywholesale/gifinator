@@ -22,6 +22,7 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	//"github.com/go-redis/redis/v8" //needs ctx added in a bunch of places
 	"github.com/golang/freetype"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
@@ -69,7 +70,6 @@ var (
 	useSSL          = false
 )
 
-// inputPath kinda sus
 func transform(inputPath string, jobId string) (bytes.Buffer, error) {
 	var transformed bytes.Buffer
 	tmpl, err := template.ParseFiles(inputPath)
@@ -270,7 +270,6 @@ func leaseNextTask() error {
 	_, err = renderClient.RenderFrame(context.Background(), req)
 
 	if err != nil {
-		// TODO(jessup) Swap these out for proper logging
 		fmt.Fprintf(os.Stderr, "error requesting frame - %v\n", err)
 		return err
 	}
@@ -336,19 +335,16 @@ func compileGifs(prefix string, tCtx context.Context) (string, error) {
 
 	defer cancel()
 
-	//TODO:objectCh is a channel, needs to be handled properly
 	objectCh := minioClient.ListObjects(ctx, minioBucket, minio.ListObjectsOptions{Prefix: prefix})
-	//TODO: orderedObjects ends up empty
 	var orderedObjects []minio.ObjectInfo
 	for minioObj := range objectCh {
 		if minioObj.Err != nil {
 			fmt.Println("object error:", minioObj.Err)
 			return "", minioObj.Err
 		}
-		orderedObjects = append(orderedObjects, minioObj) //might need pointer to object instead of just object
+		orderedObjects = append(orderedObjects, minioObj)
 	}
 
-	//TODO: something is going wrong and finalGif ends up empty
 	finalGif := &gif.GIF{}
 	for _, frameObj := range orderedObjects {
 		object, err := minioClient.GetObject(ctx, minioBucket, frameObj.Key, minio.GetObjectOptions{})
@@ -383,7 +379,7 @@ func compileGifs(prefix string, tCtx context.Context) (string, error) {
 	err = gif.EncodeAll(gifBuffer, finalGif)
 	err = upload(gifBuffer.Bytes(), finalObjName, "image/gif", minioClient, ctx)
 	// TODO: set final minio object to be public and return the link to it
-	// TODO: don't ignore the above TODO and change what is returned
+	// instead of using a presigned URL so it's always public
 	presignedURL, err := minioClient.PresignedGetObject(ctx, "gifbucket", finalObjName, time.Second*24*60*60, nil)
 	if err != nil {
 		return "", err
