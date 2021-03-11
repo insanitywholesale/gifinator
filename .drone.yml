@@ -40,7 +40,7 @@ steps:
   image: golang
   commands:
   - cd gifcreator
-  - cp -r scene /tmp/
+  - cp -r scene /
   - go get -v
   - go build -v
   - go test -v

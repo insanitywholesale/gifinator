@@ -134,6 +134,8 @@ gitlab.com/insanitywholesale/gifinator v0.0.0-20210126153212-bd99cb36d0e5 h1:bn/
 gitlab.com/insanitywholesale/gifinator v0.0.0-20210126153212-bd99cb36d0e5/go.mod h1:hgwqCEYhR7THs/plm1OihOKSjNhkZOzT4rwptLDnZjM=
 gitlab.com/insanitywholesale/gifinator v0.0.0-20210129215924-49ac35eaa103 h1:WnIButtp5Gqxmds0vPSMvBtvuTUz4KZ6bqGmvt4lhrc=
 gitlab.com/insanitywholesale/gifinator v0.0.0-20210129215924-49ac35eaa103/go.mod h1:hgwqCEYhR7THs/plm1OihOKSjNhkZOzT4rwptLDnZjM=
+gitlab.com/insanitywholesale/gifinator v0.0.0-20210311130746-f4100daadf9a h1:IrsATryFazOZbVqYQHae1gDikWFIHManUEyYauQIgQ4=
+gitlab.com/insanitywholesale/gifinator v0.0.0-20210311130746-f4100daadf9a/go.mod h1:hgwqCEYhR7THs/plm1OihOKSjNhkZOzT4rwptLDnZjM=
 go.opentelemetry.io/otel v0.18.0 h1:d5Of7+Zw4ANFOJB+TIn2K3QWsgS2Ht7OU9DqZHI6qu8=
 go.opentelemetry.io/otel v0.18.0/go.mod h1:PT5zQj4lTsR1YeARt8YNKcFb88/c2IKoSABK9mX0r78=
 go.opentelemetry.io/otel/metric v0.18.0 h1:yuZCmY9e1ZTaMlZXLrrbAPmYW6tW1A5ozOZeOYGaTaY=
@@ -234,6 +236,8 @@ google.golang.org/genproto v0.0.0-20210126160654-44e461bb6506 h1:uLBY0yHDCj2PMQ9
 google.golang.org/genproto v0.0.0-20210126160654-44e461bb6506/go.mod h1:FWY/as6DDZQgahTzZj3fqbO1CbirC29ZNUFHwi0/+no=
 google.golang.org/genproto v0.0.0-20210310155132-4ce2db91004e h1:ajd1UAja5y1pRx7xOU6R6faEHLKigztzPRvZ+mpE1Fo=
 google.golang.org/genproto v0.0.0-20210310155132-4ce2db91004e/go.mod h1:FWY/as6DDZQgahTzZj3fqbO1CbirC29ZNUFHwi0/+no=
+google.golang.org/genproto v0.0.0-20210311153111-e2979279ddde h1:ZC8QEWwnT4z5oijBVf++MV+RKH6uYcT6zORNP014fi8=
+google.golang.org/genproto v0.0.0-20210311153111-e2979279ddde/go.mod h1:FWY/as6DDZQgahTzZj3fqbO1CbirC29ZNUFHwi0/+no=
 google.golang.org/grpc v1.19.0/go.mod h1:mqu4LbDTu4XGKhr4mRzUsmM4RtVoemTSY81AxZiDr8c=
 google.golang.org/grpc v1.23.0/go.mod h1:Y5yQAOtifL1yxbo5wqy6BxZv8vAUGQwXBOALyacEbxg=
 google.golang.org/grpc v1.25.1/go.mod h1:c3i+UQWmh7LiEpx4sFZnkU36qjEYZ0imhYfXVyQciAY=

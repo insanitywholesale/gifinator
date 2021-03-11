@@ -1,19 +1,23 @@
 # the entire file needs changes
-FROM alpine
+FROM golang:1.16
 
-COPY ./gopath/bin/frontend /frontend
-COPY ./gopath/bin/gifcreator /gifcreator
-COPY ./gopath/bin/render /render
+WORKDIR /go/src
+
+COPY ./render .
+COPY ./gifcreator .
+COPY ./frontend .
+
+WORKDIR /go/src/render
+RUN go install -v ./...
+WORKDIR /go/src/gifcreator
+RUN go install -v ./...
+WORKDIR /go/src/frontend
+RUN go install -v ./...
 
 COPY ./frontend/static /static
 COPY ./frontend/templates /templates
 
 COPY ./gifcreator/scene /scene
-
-# Add trusted CA root bundles
-RUN apk update \
-	&&   apk add ca-certificates wget \
-	&&   update-ca-certificates
 
 ENV FRONTEND_TEMPLATES_DIR=/templates
 ENV FRONTEND_STATIC_DIR=/static

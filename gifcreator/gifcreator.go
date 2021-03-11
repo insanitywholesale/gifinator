@@ -28,8 +28,8 @@ import (
 	pb "gitlab.com/insanitywholesale/gifinator/proto"
 	"golang.org/x/image/font/gofont/gobold"
 	"google.golang.org/grpc"
-	"gopkg.in/redis.v5" //very outdated api version
-	//"github.com/go-redis/redis/v8" //needs ctx added in a bunch of places
+	//"gopkg.in/redis.v5" //very outdated api version
+	"github.com/go-redis/redis/v8" //needs ctx added in a bunch of places
 	"image"
 	"image/gif"
 	"image/png"
@@ -60,6 +60,7 @@ type renderTask struct {
 var (
 	redisClient     *redis.Client
 	renderClient    pb.RenderClient
+	redisContext = context.Background()
 	scenePath       string
 	deploymentId    string
 	workerMode      = flag.Bool("worker", false, "run in worker mode rather than server")
@@ -115,7 +116,7 @@ func addLabel(img *image.NRGBA, x, y int, label string) error {
 
 func (server) StartJob(ctx context.Context, req *pb.StartJobRequest) (*pb.StartJobResponse, error) {
 	// Retrieive the next job ID from Redis
-	jobId, err := redisClient.Incr("gifjob_counter").Result()
+	jobId, err := redisClient.Incr(redisContext, "gifjob_counter").Result()
 	if err != nil {
 		return nil, err
 	}
@@ -126,7 +127,7 @@ func (server) StartJob(ctx context.Context, req *pb.StartJobRequest) (*pb.StartJ
 		Status: pb.GetJobResponse_PENDING,
 	}
 	payload, _ := json.Marshal(job)
-	err = redisClient.Set("job_gifjob_"+jobIdStr, payload, 0).Err()
+	err = redisClient.Set(redisContext, "job_gifjob_"+jobIdStr, payload, 0).Err()
 	if err != nil {
 		return nil, err
 	}
@@ -196,7 +197,7 @@ func (server) StartJob(ctx context.Context, req *pb.StartJobRequest) (*pb.StartJ
 		}
 
 		//Get new task id
-		taskId, err = redisClient.Incr("counter_queued_gifjob_" + jobIdStr).Result()
+		taskId, err = redisClient.Incr(redisContext, "counter_queued_gifjob_" + jobIdStr).Result()
 		if err != nil {
 			return nil, err
 		}
@@ -206,11 +207,11 @@ func (server) StartJob(ctx context.Context, req *pb.StartJobRequest) (*pb.StartJ
 		if err != nil {
 			return nil, err
 		}
-		err = redisClient.Set("task_gifjob_"+jobIdStr+"_"+taskIdStr, payload, 0).Err()
+		err = redisClient.Set(redisContext, "task_gifjob_"+jobIdStr+"_"+taskIdStr, payload, 0).Err()
 		if err != nil {
 			return nil, err
 		}
-		err = redisClient.LPush("gifjob_queued", jobIdStr+"_"+taskIdStr).Err()
+		err = redisClient.LPush(redisContext, "gifjob_queued", jobIdStr+"_"+taskIdStr).Err()
 		if err != nil {
 			return nil, err
 		}
@@ -231,7 +232,7 @@ func leaseNextTask() error {
 	 * processing queue. If this process crashes during processing then a garbage
 	 * collector could move the task back into the 'queueing' queue.
 	 */
-	jobString, err := redisClient.BRPopLPush("gifjob_queued", "gifjob_processing", 0).Result()
+	jobString, err := redisClient.BRPopLPush(redisContext, "gifjob_queued", "gifjob_processing", 0).Result()
 	if err != nil {
 		return err
 	}
@@ -242,7 +243,7 @@ func leaseNextTask() error {
 	jobIdStr := strs[0]
 	taskIdStr := strs[1]
 
-	payload, err := redisClient.Get("task_gifjob_" + jobIdStr + "_" + taskIdStr).Result()
+	payload, err := redisClient.Get(redisContext, "task_gifjob_" + jobIdStr + "_" + taskIdStr).Result()
 	if err != nil {
 		return err
 	}
@@ -275,18 +276,18 @@ func leaseNextTask() error {
 	}
 
 	// delete item from gifjob_processing
-	err = redisClient.LRem("gifjob_processing", 1, jobString).Err()
+	err = redisClient.LRem(redisContext, "gifjob_processing", 1, jobString).Err()
 	if err != nil {
 		return err
 	}
 	fmt.Fprintf(os.Stdout, "deleted gifjob_%s\n", jobString)
 
 	// increment "gifjob_"+jobIdStr+"_completed_counter"
-	completedTaskCount, err := redisClient.Incr("counter_completed_gifjob_" + jobIdStr).Result()
+	completedTaskCount, err := redisClient.Incr(redisContext, "counter_completed_gifjob_" + jobIdStr).Result()
 	if err != nil {
 		return err
 	}
-	queueLength, err := redisClient.Get("counter_queued_gifjob_" + jobIdStr).Result()
+	queueLength, err := redisClient.Get(redisContext, "counter_queued_gifjob_" + jobIdStr).Result()
 	if err != nil {
 		return err
 	}
@@ -305,7 +306,7 @@ func leaseNextTask() error {
 			FinalImagePath: finalImagePath,
 		}
 		payloadBytes, _ := json.Marshal(job)
-		err = redisClient.Set("job_gifjob_"+jobIdStr, payloadBytes, 0).Err()
+		err = redisClient.Set(redisContext, "job_gifjob_"+jobIdStr, payloadBytes, 0).Err()
 		if err != nil {
 			return err
 		}
@@ -389,7 +390,7 @@ func compileGifs(prefix string, tCtx context.Context) (string, error) {
 
 func (server) GetJob(ctx context.Context, req *pb.GetJobRequest) (*pb.GetJobResponse, error) {
 	var job renderJob
-	statusStr, err := redisClient.Get("job_gifjob_" + string(req.JobId)).Result()
+	statusStr, err := redisClient.Get(redisContext, "job_gifjob_" + string(req.JobId)).Result()
 	if err != nil {
 		return nil, err
 	}

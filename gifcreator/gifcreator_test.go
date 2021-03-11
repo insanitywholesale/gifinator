@@ -5,8 +5,8 @@ import (
 	pb "gitlab.com/insanitywholesale/gifinator/proto"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/test/bufconn"
-	"gopkg.in/redis.v5" //very outdated api version
-	//"github.com/go-redis/redis/v8"
+	//"gopkg.in/redis.v5" //very outdated api version
+	"github.com/go-redis/redis/v8"
 	"log"
 	"net"
 	"testing"
