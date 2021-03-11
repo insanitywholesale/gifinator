@@ -22,7 +22,6 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	//"github.com/go-redis/redis/v8" //needs ctx added in a bunch of places
 	"github.com/golang/freetype"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
@@ -30,6 +29,7 @@ import (
 	"golang.org/x/image/font/gofont/gobold"
 	"google.golang.org/grpc"
 	"gopkg.in/redis.v5" //very outdated api version
+	//"github.com/go-redis/redis/v8" //needs ctx added in a bunch of places
 	"image"
 	"image/gif"
 	"image/png"

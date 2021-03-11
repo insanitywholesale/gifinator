@@ -3,6 +3,14 @@ type: kubernetes
 name: default
 
 steps:
+- name: minioserver
+  image: minio/minio
+  command: [ "server", "/data" ]
+  environment:
+    MINIO_ACCESS_KEY: minioaccesskeyid
+    MINIO_SECRET_KEY: miniosecretaccesskey
+  detach: true
+
 - name: minioclient
   image: minio/mc
   commands:
@@ -55,12 +63,5 @@ steps:
 
 
 services:
-- name: minioserver
-  image: minio/minio
-  command: [ "server", "/data" ]
-  environment:
-    MINIO_ACCESS_KEY: minioaccesskeyid
-    MINIO_SECRET_KEY: miniosecretaccesskey
-
 - name: database
   image: redis:5

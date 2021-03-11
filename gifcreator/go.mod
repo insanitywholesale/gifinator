@@ -5,18 +5,16 @@ go 1.13
 require (
 	github.com/cheggaaa/pb v1.0.29 // indirect
 	github.com/dustin/go-humanize v1.0.0 // indirect
+	github.com/go-redis/redis v6.15.9+incompatible
+	github.com/go-redis/redis/v8 v8.7.1
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0
 	github.com/golang/protobuf v1.4.3 // indirect
-	github.com/google/go-cmp v0.5.4 // indirect
 	github.com/google/uuid v1.2.0 // indirect
 	github.com/minio/md5-simd v1.1.2 // indirect
 	github.com/minio/minio-go/v7 v7.0.10
 	github.com/minio/sha256-simd v1.0.0 // indirect
 	github.com/minio/sio v0.2.1 // indirect
-	github.com/onsi/ginkgo v1.14.2 // indirect
-	github.com/onsi/gomega v1.10.4 // indirect
 	github.com/sirupsen/logrus v1.7.0 // indirect
-	github.com/stretchr/testify v1.6.1 // indirect
 	gitlab.com/insanitywholesale/gifinator v0.0.0-20210129215924-49ac35eaa103
 	golang.org/x/crypto v0.0.0-20210220033148-5ea612d1eb83 // indirect
 	golang.org/x/image v0.0.0-20210220032944-ac19c3e999fb
