@@ -37,7 +37,7 @@ func TestStartJob(t *testing.T) {
 	minioBucket = "gifbucket"
 	accessKeyID = "minioaccesskeyid"
 	secretAccessKey = "miniosecretaccesskey"
-	scenePath = "/tmp/scene"
+	scenePath = "/scene"
 	ctx := context.Background()
 	const bufSize = 1024 * 1024
 	var listener *bufconn.Listener
