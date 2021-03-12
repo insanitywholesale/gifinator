@@ -64,4 +64,4 @@ steps:
 
 services:
 - name: database
-  image: redis:5
+  image: redis:latest
