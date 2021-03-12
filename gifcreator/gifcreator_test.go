@@ -80,7 +80,7 @@ func TestStartJob(t *testing.T) {
 		ProductToPlug: 2,
 	}
 	//run StartJob with the above request
-	res, err := client.StartJob(ctx, startJobRequest)
+	res, err := client.StartJob(redisContext, startJobRequest)
 	if err != nil {
 		t.Log("error starting job:", err)
 	}
