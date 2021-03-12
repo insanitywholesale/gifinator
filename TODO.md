@@ -2,3 +2,4 @@
 - fix kubernetes manifests
 - document required env vars
 - add defaults as well as error handling for the env vars
+- test dockerfile
