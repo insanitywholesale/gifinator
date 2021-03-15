@@ -17,38 +17,44 @@
 package main
 
 import (
+	"embed"
 	"encoding/json"
 	"fmt"
 	pb "gitlab.com/insanitywholesale/gifinator/proto"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 	"html/template"
+	"io/fs"
+	"log"
 	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
 )
 
-// TODO(jessup) remove globals in favor of appContext
 var (
 	templatePath string
-	staticPath   string
-	port         string
-
+	//go:embed static
+	staticPath embed.FS
+	// gifcreator client
 	gcClient pb.GifCreatorClient
 )
 
 func main() {
 	// TODO(jbd): convert env vars into flags
 	templatePath = os.Getenv("FRONTEND_TEMPLATES_DIR")
-	staticPath = os.Getenv("FRONTEND_STATIC_DIR")
-	port = os.Getenv("FRONTEND_PORT")
+	//staticPath = os.Getenv("FRONTEND_STATIC_DIR")
+	port := os.Getenv("FRONTEND_PORT")
 	gifcreatorPort := os.Getenv("GIFCREATOR_PORT")
 	gifcreatorName := os.Getenv("GIFCREATOR_NAME")
 
 	// TODO(jessup): check env vars for correctnesss
 
-	fs := http.FileServer(http.Dir(staticPath))
+	//fs := http.FileServer(http.Dir(staticPath))
+	fsys, err := fs.Sub(staticPath, "static")
+	if err != nil {
+		log.Fatal("error with static path:", err)
+	}
 	gcHostAddr := gifcreatorName + ":" + gifcreatorPort
 
 	conn, err := grpc.Dial(gcHostAddr, grpc.WithInsecure())
@@ -63,7 +69,8 @@ func main() {
 	http.HandleFunc("/", handleForm)
 	http.HandleFunc("/gif/", handleGif)
 	http.HandleFunc("/check/", handleGifStatus)
-	http.Handle("/static/", http.StripPrefix("/static/", fs))
+	//http.Handle("/static/", http.StripPrefix("/static/", fs))
+	http.Handle("/static/", http.FileServer(http.FS(fsys)))
 	http.ListenAndServe(":"+port, nil)
 }
 
