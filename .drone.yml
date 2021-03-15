@@ -17,7 +17,6 @@ steps:
   - mc config host add myminio http://localhost:9000 minioaccesskeyid miniosecretaccesskey
   - mc mb -p myminio/gifbucket
   - mc policy set download myminio/gifbucket
-  detach: true
 
 - name: render
   image: golang
