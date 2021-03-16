@@ -14,14 +14,15 @@ steps:
 - name: minioclient
   image: minio/mc
   commands:
-  - sleep 35
-  - mc config host add myminio http://localhost:9000 minioaccesskeyid miniosecretaccesskey
+  - mc alias set myminio http://localhost:9000 minioaccesskeyid miniosecretaccesskey
+  - until [ mc admin info myminio ]; do sleep 1s; done;
+  #- mc config host add myminio http://localhost:9000 minioaccesskeyid miniosecretaccesskey
   - mc mb -p myminio/gifbucket
   - mc policy set download myminio/gifbucket
   detach: true
 
 - name: render
-  image: golang
+  image: golang:1.16
   commands:
   - mkdir /tmp/objcache
   - cd render
@@ -30,7 +31,7 @@ steps:
   - go test -v
 
 - name: rendering
-  image: golang
+  image: golang:1.16
   commands:
   - mkdir /tmp/objcache
   - cd render
@@ -38,7 +39,7 @@ steps:
   detach: true
 
 - name: gifcreator
-  image: golang
+  image: golang:1.16
   commands:
   - cd gifcreator
   - cp -r scene /
@@ -47,7 +48,7 @@ steps:
   - go test -v
 
 - name: gifcreatoring
-  image: golang
+  image: golang:1.16
   commands:
   - cd gifcreator
   - cp -r scene /tmp/
@@ -55,7 +56,7 @@ steps:
   detach: true
 
 - name: frontend
-  image: golang
+  image: golang:1.16
   commands:
   - cd frontend
   - go get -v
