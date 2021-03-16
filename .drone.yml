@@ -14,7 +14,7 @@ steps:
 - name: minioclient
   image: minio/mc
   commands:
-  - sh -c 'until [ mc config host add myminio http://localhost:9000 minioaccesskeyid miniosecretaccesskey]; do sleep 1s; done;'
+  - sh -c 'until [ mc config host add myminio http://localhost:9000 minioaccesskeyid miniosecretaccesskey ]; do sleep 1s; done;'
   - mc mb -p myminio/gifbucket
   - mc policy set download myminio/gifbucket
   detach: true
