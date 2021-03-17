@@ -93,7 +93,7 @@ func TestWorkerMode(t *testing.T) {
 	// set up base variables
 	*workerMode = true
 	renderHostAddr := "localhost:8080"
-	scenePath = "/tmp/scene"
+	scenePath = "/scene"
 
 	// initialize redis client
 	redisClient = redis.NewClient(&redis.Options{
