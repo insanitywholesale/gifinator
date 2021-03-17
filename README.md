@@ -7,7 +7,7 @@ look at TODO for what's left to be done (hint: it's a lot).
 the following should be run in the order they are listed and each one in a different terminal
 
 ## docker
-### all-in-one script
+### all-in-one script (doesn't work yet)
 just run `./rundocker.sh` and then try to access `http://localhost:8090`
 
 ## manually
