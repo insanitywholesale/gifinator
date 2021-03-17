@@ -3,9 +3,6 @@ module gifinator/gifcreator
 go 1.13
 
 require (
-	github.com/cheggaaa/pb v1.0.29 // indirect
-	github.com/dustin/go-humanize v1.0.0 // indirect
-	github.com/go-redis/redis v6.15.9+incompatible
 	github.com/go-redis/redis/v8 v8.7.1
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0
 	github.com/golang/protobuf v1.4.3 // indirect
@@ -13,8 +10,6 @@ require (
 	github.com/minio/md5-simd v1.1.2 // indirect
 	github.com/minio/minio-go/v7 v7.0.10
 	github.com/minio/sha256-simd v1.0.0 // indirect
-	github.com/minio/sio v0.2.1 // indirect
-	github.com/sirupsen/logrus v1.7.0 // indirect
 	gitlab.com/insanitywholesale/gifinator v0.0.0-20210311130746-f4100daadf9a
 	golang.org/x/crypto v0.0.0-20210220033148-5ea612d1eb83 // indirect
 	golang.org/x/image v0.0.0-20210220032944-ac19c3e999fb
@@ -24,5 +19,4 @@ require (
 	google.golang.org/genproto v0.0.0-20210311153111-e2979279ddde // indirect
 	google.golang.org/grpc v1.36.0
 	gopkg.in/ini.v1 v1.62.0 // indirect
-	gopkg.in/redis.v5 v5.2.9
 )
