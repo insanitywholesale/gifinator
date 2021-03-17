@@ -22,14 +22,13 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"github.com/go-redis/redis/v8"
 	"github.com/golang/freetype"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
 	pb "gitlab.com/insanitywholesale/gifinator/proto"
 	"golang.org/x/image/font/gofont/gobold"
 	"google.golang.org/grpc"
-	//"gopkg.in/redis.v5" //very outdated api version
-	"github.com/go-redis/redis/v8" //needs ctx added in a bunch of places
 	"image"
 	"image/gif"
 	"image/png"
@@ -60,11 +59,11 @@ type renderTask struct {
 var (
 	redisClient     *redis.Client
 	renderClient    pb.RenderClient
-	redisContext = context.Background()
+	redisContext    = context.Background()
 	scenePath       string
 	deploymentId    string
 	workerMode      = flag.Bool("worker", false, "run in worker mode rather than server")
-	minioBucket     string
+	minioBucket     = "gifbucket"
 	endpoint        string
 	accessKeyID     string
 	secretAccessKey string
@@ -197,7 +196,7 @@ func (server) StartJob(ctx context.Context, req *pb.StartJobRequest) (*pb.StartJ
 		}
 
 		//Get new task id
-		taskId, err = redisClient.Incr(redisContext, "counter_queued_gifjob_" + jobIdStr).Result()
+		taskId, err = redisClient.Incr(redisContext, "counter_queued_gifjob_"+jobIdStr).Result()
 		if err != nil {
 			return nil, err
 		}
@@ -243,7 +242,7 @@ func leaseNextTask() error {
 	jobIdStr := strs[0]
 	taskIdStr := strs[1]
 
-	payload, err := redisClient.Get(redisContext, "task_gifjob_" + jobIdStr + "_" + taskIdStr).Result()
+	payload, err := redisClient.Get(redisContext, "task_gifjob_"+jobIdStr+"_"+taskIdStr).Result()
 	if err != nil {
 		return err
 	}
@@ -283,11 +282,11 @@ func leaseNextTask() error {
 	fmt.Fprintf(os.Stdout, "deleted gifjob_%s\n", jobString)
 
 	// increment "gifjob_"+jobIdStr+"_completed_counter"
-	completedTaskCount, err := redisClient.Incr(redisContext, "counter_completed_gifjob_" + jobIdStr).Result()
+	completedTaskCount, err := redisClient.Incr(redisContext, "counter_completed_gifjob_"+jobIdStr).Result()
 	if err != nil {
 		return err
 	}
-	queueLength, err := redisClient.Get(redisContext, "counter_queued_gifjob_" + jobIdStr).Result()
+	queueLength, err := redisClient.Get(redisContext, "counter_queued_gifjob_"+jobIdStr).Result()
 	if err != nil {
 		return err
 	}
@@ -390,7 +389,7 @@ func compileGifs(prefix string, tCtx context.Context) (string, error) {
 
 func (server) GetJob(ctx context.Context, req *pb.GetJobRequest) (*pb.GetJobResponse, error) {
 	var job renderJob
-	statusStr, err := redisClient.Get(redisContext, "job_gifjob_" + string(req.JobId)).Result()
+	statusStr, err := redisClient.Get(redisContext, "job_gifjob_"+string(req.JobId)).Result()
 	if err != nil {
 		return nil, err
 	}
