@@ -24,8 +24,6 @@ import (
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 	"html/template"
-	"io/fs"
-	"log"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -43,7 +41,6 @@ var (
 func main() {
 	// TODO(jbd): convert env vars into flags
 	templatePath = os.Getenv("FRONTEND_TEMPLATES_DIR")
-	//staticPath = os.Getenv("FRONTEND_STATIC_DIR")
 	port := os.Getenv("FRONTEND_PORT")
 	gifcreatorPort := os.Getenv("GIFCREATOR_PORT")
 	gifcreatorName := os.Getenv("GIFCREATOR_NAME")
@@ -51,10 +48,6 @@ func main() {
 	// TODO(jessup): check env vars for correctnesss
 
 	//fs := http.FileServer(http.Dir(staticPath))
-	fsys, err := fs.Sub(staticPath, "static")
-	if err != nil {
-		log.Fatal("error with static path:", err)
-	}
 	gcHostAddr := gifcreatorName + ":" + gifcreatorPort
 
 	conn, err := grpc.Dial(gcHostAddr, grpc.WithInsecure())
@@ -69,8 +62,7 @@ func main() {
 	http.HandleFunc("/", handleForm)
 	http.HandleFunc("/gif/", handleGif)
 	http.HandleFunc("/check/", handleGifStatus)
-	//http.Handle("/static/", http.StripPrefix("/static/", fs))
-	http.Handle("/static/", http.FileServer(http.FS(fsys)))
+	http.Handle("/static/", http.FileServer(http.FS(staticPath)))
 	http.ListenAndServe(":"+port, nil)
 }
 
