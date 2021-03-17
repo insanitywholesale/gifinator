@@ -25,5 +25,4 @@ COPY --from=build /go/bin/gifcreator /gifcreator
 COPY --from=build /go/bin/frontend /frontend
 RUN mkdir /tmp/objcache
 COPY ./gifcreator/scene /scene
-COPY ./frontend/templates /templates
 ENV FRONTEND_TEMPLATES_DIR=/templates
