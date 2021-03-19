@@ -2,3 +2,4 @@
 - add defaults as well as error handling for the env vars
 - test dockerfile
 - fix rundocker.sh
+- move to embed.FS for all bundled files
