@@ -1,7 +1,7 @@
 # gifinator
 
 fork of https://github.com/GoogleCloudPlatform/gifinator to run locally and use minio for storage instead of gcs.
-look at TODO for what's left to be done (hint: it's a lot).
+look at TODO for what's left to be done.
 
 # running (for development)
 the following should be run in the order they are listed and each one in a different terminal
@@ -30,4 +30,4 @@ go to http://localhost:9000 and log in using the credentials `minioaccesskeyid` 
 access http://localhost:8090 using a web browser, fill in the text, select one of the 3 options, click Create and wait
 
 # running (for production)
-there are kubernetes manifests for it in the `infra` repository under `kube/manifests/gifinator`
+there are kubernetes manifests for it in [here in my infra repository](https://gitlab.com/insanitywholesale/infra/-/tree/master/kube/manifests/gifinator)
