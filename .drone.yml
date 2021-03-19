@@ -25,6 +25,7 @@ steps:
   - mkdir /tmp/objcache
   - cd render
   - go get -v
+  - go vet -v
   - go build -v
   - go test -v
 
@@ -42,6 +43,7 @@ steps:
   - cd gifcreator
   - cp -r scene /
   - go get -v
+  - go vet -v
   - go build -v
   - go test -v
 
@@ -58,6 +60,7 @@ steps:
   commands:
   - cd frontend
   - go get -v
+  - go vet -v
   - go build -v
   - go test -v
 
