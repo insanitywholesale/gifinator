@@ -1,5 +1,4 @@
-- update redis api from v5 to v8
-- fix kubernetes manifests
 - document required env vars
 - add defaults as well as error handling for the env vars
 - test dockerfile
+- fix rundocker.sh
