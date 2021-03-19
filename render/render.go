@@ -143,10 +143,28 @@ func (server) RenderFrame(ctx context.Context, req *pb.RenderRequest) (*pb.Rende
 }
 
 func main() {
-	endpoint := "localhost:9000"
-	accessKeyID := "minioaccesskeyid"
-	secretAccessKey := "miniosecretaccesskey"
 	useSSL := false
+	minioName := os.Getenv("MINIO_NAME")
+	if minioName == "" {
+		minioName = "localhost"
+	}
+	minioPort := os.Getenv("MINIO_PORT")
+	if minioPort == "" {
+		minioPort = "9000"
+	}
+	endpoint := minioName + ":" + minioPort
+	accessKeyID := os.Getenv("MINIO_KEY")
+	if accessKeyID == "" {
+		accessKeyID = "minioaccesskeyid"
+	}
+	secretAccessKey := os.Getenv("MINIO_SECRET")
+	if secretAccessKey == "" {
+		secretAccessKey = "miniosecretaccesskey"
+	}
+	minioBucket := os.Getenv("MINIO_BUCKET")
+	if minioBucket == "" {
+		minioBucket = "gifbucket"
+	}
 
 	// Initialize minio client object.
 	mC, err := minio.New(endpoint, &minio.Options{
@@ -156,7 +174,7 @@ func main() {
 	if err != nil {
 		log.Fatalln(err)
 	}
-	// SOMEHOW this line fixes the nil pointer dereference issue
+	// mC is local-scoped so manually assigning it to the global is needed
 	minioClient = mC
 
 	serving_port := os.Getenv("RENDER_PORT")
