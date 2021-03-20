@@ -6,16 +6,21 @@ ENV GOOS linux
 ENV GOARCH amd64
 
 COPY ./render /go/src/render
-COPY ./gifcreator /go/src/gifcreator
-COPY ./frontend /go/src/frontend
-
 WORKDIR /go/src/render
+RUN go get -v
+RUN go vet -v
 RUN go install -v
 
+COPY ./gifcreator /go/src/gifcreator
 WORKDIR /go/src/gifcreator
+RUN go get -v
+RUN go vet -v
 RUN go install -v
 
+COPY ./frontend /go/src/frontend
 WORKDIR /go/src/frontend
+RUN go get -v
+RUN go vet -v
 RUN go install -v
 
 # run stage
