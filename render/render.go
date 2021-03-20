@@ -35,13 +35,14 @@ type server struct{}
 
 var (
 	minioClient *minio.Client
+	minioBucket string
 )
 
 func cacheMinioObjToDisk(ctx context.Context, fileName string) (string, error) {
 	basePath := "/tmp/objcache"
 	fullPath := basePath + "/" + fileName
 	log.Println("filename", fileName)
-	err := minioClient.FGetObject(context.Background(), "gifbucket", fileName, fullPath, minio.GetObjectOptions{})
+	err := minioClient.FGetObject(context.Background(), minioBucket, fileName, fullPath, minio.GetObjectOptions{})
 	if err != nil {
 		fmt.Println("err:", err)
 		return "", err
@@ -93,7 +94,7 @@ func (server) RenderFrame(ctx context.Context, req *pb.RenderRequest) (*pb.Rende
 
 	// Load main object (.obj) file
 	// TODO: fix nil pointer dereference happenning here
-	//objGcsObj, err := minioClient.GetObject(ctx, "gifbucket", req.ObjPath, minio.GetObjectOptions{})
+	//objGcsObj, err := minioClient.GetObject(ctx, minioBucket, req.ObjPath, minio.GetObjectOptions{})
 	//if err != nil {
 	//	fmt.Fprintf(os.Stderr, "error getting object %s, err: %v\n", req.ObjPath, err)
 	//}
@@ -105,7 +106,7 @@ func (server) RenderFrame(ctx context.Context, req *pb.RenderRequest) (*pb.Rende
 
 	// Load the assets
 	for _, element := range req.Assets {
-		assetGcsObj, err := minioClient.GetObject(ctx, "gifbucket", element /*maybe*/, minio.GetObjectOptions{})
+		assetGcsObj, err := minioClient.GetObject(ctx, minioBucket, element /*maybe*/, minio.GetObjectOptions{})
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "error getting object %s, err: %v\n", req.ObjPath, err)
 		}
@@ -133,7 +134,7 @@ func (server) RenderFrame(ctx context.Context, req *pb.RenderRequest) (*pb.Rende
 	// AKA what happens when the imgPath is not GCS-related
 
 	//imgFileName := strings.TrimLeft(imgPath[strings.LastIndex(imgPath, "/"):], "/")
-	uploadInfo, err := minioClient.FPutObject(ctx, "gifbucket", imgFinalName, imgPath, minio.PutObjectOptions{})
+	uploadInfo, err := minioClient.FPutObject(ctx, minioBucket, imgFinalName, imgPath, minio.PutObjectOptions{})
 	if err != nil {
 		log.Println("error uploading image to minio", err)
 	}
@@ -161,7 +162,7 @@ func main() {
 	if secretAccessKey == "" {
 		secretAccessKey = "miniosecretaccesskey"
 	}
-	minioBucket := os.Getenv("MINIO_BUCKET")
+	minioBucket = os.Getenv("MINIO_BUCKET")
 	if minioBucket == "" {
 		minioBucket = "gifbucket"
 	}

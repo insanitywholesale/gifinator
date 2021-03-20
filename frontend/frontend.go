@@ -26,6 +26,7 @@ import (
 	"html/template"
 	"net/http"
 	"os"
+	"log"
 	"path/filepath"
 	"strings"
 )
@@ -42,8 +43,17 @@ func main() {
 	// TODO(jbd): convert env vars into flags
 	templatePath = os.Getenv("FRONTEND_TEMPLATES_DIR")
 	port := os.Getenv("FRONTEND_PORT")
+	if port == "" {
+		port = "8090"
+	}
 	gifcreatorPort := os.Getenv("GIFCREATOR_PORT")
+	if gifcreatorPort == "" {
+		gifcreatorPort = "8081"
+	}
 	gifcreatorName := os.Getenv("GIFCREATOR_NAME")
+	if gifcreatorName == "" {
+		gifcreatorPort = "localhost"
+	}
 
 	// TODO(jessup): check env vars for correctnesss
 
@@ -56,6 +66,7 @@ func main() {
 		return
 	}
 	defer conn.Close()
+	fmt.Println("connected to gifcreator")
 
 	gcClient = pb.NewGifCreatorClient(conn)
 
@@ -63,7 +74,8 @@ func main() {
 	http.HandleFunc("/gif/", handleGif)
 	http.HandleFunc("/check/", handleGifStatus)
 	http.Handle("/static/", http.FileServer(http.FS(staticPath)))
-	http.ListenAndServe(":"+port, nil)
+	fmt.Println("about to start serving")
+	log.Fatal(http.ListenAndServe(":"+port, nil))
 }
 
 func handleForm(w http.ResponseWriter, r *http.Request) {
@@ -96,8 +108,9 @@ func handleForm(w http.ResponseWriter, r *http.Request) {
 			renderForm(w, formErrors)
 			return
 		}
-		http.Redirect(w, r, "/memecreate", 301)
 		//Redirect to /memecreate
+		// unnecessary redirect that borked stuff
+		//http.Redirect(w, r, "/memecreate", 301)
 		response, err := gcClient.StartJob(context.Background(), &pb.StartJobRequest{Name: gifName, ProductToPlug: mascotType})
 		if err != nil {
 			// TODO(jessup) Swap these out for proper logging

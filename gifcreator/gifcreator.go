@@ -63,7 +63,7 @@ var (
 	scenePath       string
 	deploymentId    string
 	workerMode      = flag.Bool("worker", false, "run in worker mode rather than server")
-	minioBucket     = "gifbucket"
+	minioBucket     string
 	endpoint        string
 	accessKeyID     string
 	secretAccessKey string
@@ -380,7 +380,7 @@ func compileGifs(prefix string, tCtx context.Context) (string, error) {
 	err = upload(gifBuffer.Bytes(), finalObjName, "image/gif", minioClient, ctx)
 	// TODO: set final minio object to be public and return the link to it
 	// instead of using a presigned URL so it's always public
-	presignedURL, err := minioClient.PresignedGetObject(ctx, "gifbucket", finalObjName, time.Second*24*60*60, nil)
+	presignedURL, err := minioClient.PresignedGetObject(ctx, minioBucket, finalObjName, time.Second*24*60*60, nil)
 	if err != nil {
 		return "", err
 	}
@@ -441,15 +441,15 @@ func main() {
 		minioPort = "9000"
 	}
 	endpoint = minioName + ":" + minioPort
-	accessKeyID := os.Getenv("MINIO_KEY")
+	accessKeyID = os.Getenv("MINIO_KEY")
 	if accessKeyID == "" {
 		accessKeyID = "minioaccesskeyid"
 	}
-	secretAccessKey := os.Getenv("MINIO_SECRET")
+	secretAccessKey = os.Getenv("MINIO_SECRET")
 	if secretAccessKey == "" {
 		secretAccessKey = "miniosecretaccesskey"
 	}
-	minioBucket := os.Getenv("MINIO_BUCKET")
+	minioBucket = os.Getenv("MINIO_BUCKET")
 	if minioBucket == "" {
 		minioBucket = "gifbucket"
 	}
