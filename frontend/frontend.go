@@ -41,6 +41,9 @@ var (
 
 func main() {
 	templatePath = os.Getenv("FRONTEND_TEMPLATES_DIR")
+	if templatePath == "" {
+		templatePath = "/templates"
+	}
 	port := os.Getenv("FRONTEND_PORT")
 	if port == "" {
 		port = "8090"
