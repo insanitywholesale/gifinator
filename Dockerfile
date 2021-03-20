@@ -5,23 +5,23 @@ ENV CGO_ENABLED 0
 ENV GOOS linux
 ENV GOARCH amd64
 
-COPY ./render /go/src/render
-WORKDIR /go/src/render
+WORKDIR /go/src
+COPY . .
+
+WORKDIR /go/src/gifinator/render
 RUN go get -v
 #RUN go vet -v
 RUN go install -v
 
-COPY ./gifcreator /go/src/gifcreator
-WORKDIR /go/src/gifcreator
+WORKDIR /go/src/gifinator/gifcreator
 RUN go get -v
 #RUN go vet -v
 RUN go install -v
 
-COPY ./frontend /go/src/frontend
-WORKDIR /go/src/frontend
+WORKDIR /go/src/gifinator/frontend
 RUN go get -v
 #RUN go vet -v
-RUN go install -v
+RUN make installwithvars
 
 # run stage
 FROM busybox as run
