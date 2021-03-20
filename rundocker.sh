@@ -1,6 +1,6 @@
 #!/bin/sh -x
 
-IMG="inherently/gifinator:test"
+IMG="inherently/gifinator:0.0.2"
 NET="gifnet"
 
 docker pull $IMG
