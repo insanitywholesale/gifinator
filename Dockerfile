@@ -8,19 +8,19 @@ ENV GOARCH amd64
 COPY ./render /go/src/render
 WORKDIR /go/src/render
 RUN go get -v
-RUN go vet -v
+#RUN go vet -v
 RUN go install -v
 
 COPY ./gifcreator /go/src/gifcreator
 WORKDIR /go/src/gifcreator
 RUN go get -v
-RUN go vet -v
+#RUN go vet -v
 RUN go install -v
 
 COPY ./frontend /go/src/frontend
 WORKDIR /go/src/frontend
 RUN go get -v
-RUN go vet -v
+#RUN go vet -v
 RUN go install -v
 
 # run stage
@@ -30,4 +30,5 @@ COPY --from=build /go/bin/gifcreator /gifcreator
 COPY --from=build /go/bin/frontend /frontend
 RUN mkdir /tmp/objcache
 COPY ./gifcreator/scene /scene
+COPY ./frontend/templates /templates
 ENV FRONTEND_TEMPLATES_DIR=/templates
