@@ -4,8 +4,9 @@ FROM golang:1.16 as build
 ENV CGO_ENABLED 0
 ENV GOOS linux
 ENV GOARCH amd64
+ENV GO111MODULE on
 
-WORKDIR /go/src
+WORKDIR /go/src/gifinator
 COPY . .
 
 WORKDIR /go/src/gifinator/render
