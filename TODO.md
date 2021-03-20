@@ -1,4 +1,3 @@
-- document required env vars
-- add defaults as well as error handling for the env vars
+- document defaults for env vars
 - move to embed.FS for all bundled files
 - change tests to set config vars through env instead of hardcode
