@@ -40,7 +40,6 @@ var (
 )
 
 func main() {
-	// TODO(jbd): convert env vars into flags
 	templatePath = os.Getenv("FRONTEND_TEMPLATES_DIR")
 	port := os.Getenv("FRONTEND_PORT")
 	if port == "" {
@@ -55,9 +54,6 @@ func main() {
 		gifcreatorPort = "localhost"
 	}
 
-	// TODO(jessup): check env vars for correctnesss
-
-	//fs := http.FileServer(http.Dir(staticPath))
 	gcHostAddr := gifcreatorName + ":" + gifcreatorPort
 
 	conn, err := grpc.Dial(gcHostAddr, grpc.WithInsecure())
@@ -108,9 +104,6 @@ func handleForm(w http.ResponseWriter, r *http.Request) {
 			renderForm(w, formErrors)
 			return
 		}
-		//Redirect to /memecreate
-		// unnecessary redirect that borked stuff
-		//http.Redirect(w, r, "/memecreate", 301)
 		response, err := gcClient.StartJob(context.Background(), &pb.StartJobRequest{Name: gifName, ProductToPlug: mascotType})
 		if err != nil {
 			// TODO(jessup) Swap these out for proper logging
