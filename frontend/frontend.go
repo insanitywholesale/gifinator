@@ -32,11 +32,15 @@ import (
 )
 
 var (
+	// where to find templates
 	templatePath string
 	//go:embed static
 	staticPath embed.FS
 	// gifcreator client
 	gcClient pb.GifCreatorClient
+	// commit info
+	commitHash string
+	commitDate string
 )
 
 func main() {
@@ -72,6 +76,7 @@ func main() {
 	http.HandleFunc("/", handleForm)
 	http.HandleFunc("/gif/", handleGif)
 	http.HandleFunc("/check/", handleGifStatus)
+	http.HandleFunc("/info", getInfo)
 	http.Handle("/static/", http.FileServer(http.FS(staticPath)))
 	fmt.Println("about to start serving")
 	log.Fatal(http.ListenAndServe(":"+port, nil))
@@ -202,3 +207,13 @@ func handleGifStatus(w http.ResponseWriter, r *http.Request) {
 	jsonReponse, _ := json.Marshal(response)
 	fmt.Fprintf(w, string(jsonReponse))
 }
+
+func getInfo(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "GET" {
+		w.Write([]byte("commitHash: "+commitHash+"\n"))
+		w.Write([]byte("commitDate: "+commitDate+"\n"))
+		return
+	}
+	return
+}
+
