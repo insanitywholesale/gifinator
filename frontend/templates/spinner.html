@@ -24,7 +24,7 @@ callback = function(status, err) {
       alert("Error with " + job_id + " : " + err.toString());
       break;
     case 1:
-      retryIntervalMs = retryIntervalMs * 2; // Change to 2 for incremental backoff
+      retryIntervalMs = retryIntervalMs * 1; // Change to 2 for incremental backoff
       console.log("Retrying in " + retryIntervalMs + "ms.");
       setTimeout(checkJob, retryIntervalMs);
       break;
