@@ -1,3 +1,2 @@
-- document defaults for env vars
 - move to embed.FS for all bundled files
 - change tests to set config vars through env instead of hardcode
