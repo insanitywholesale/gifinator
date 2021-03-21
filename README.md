@@ -52,41 +52,49 @@ see [official docs](https://github.com/librenms/docker/blob/263c47e895850e6c7a4c
 ## minio
 see [official docs](https://github.com/minio/minio/tree/9171d6ef651a852b48f39f828c3d01e30fbf4e9c/docs/config)
 ## render
-- `RENDER_PORT`: port the service will run at
-- `MINIO_NAME`: minio server domain name
-- `MINIO_PORT`: minio server port number
-- `MINIO_BUCKET`: minio bucket to be used
-- `MINIO_KEY`: minio access key
-- `MINIO_SECRET`: minio secret key
+| Variable       | Description                  | Default Value        |
+|----------------|------------------------------|----------------------|
+| `RENDER_PORT`  | port the service will run at | 8080                 |
+| `MINIO_NAME`   | minio server domain name     | localhost            |
+| `MINIO_PORT`   | minio server port number     | 9000                 |
+| `MINIO_BUCKET` | minio bucket to be used      | gifbucket            |
+| `MINIO_KEY`    | minio access key             | minioaccesskeyid     |
+| `MINIO_SECRET` | minio secret key             | miniosecretaccesskey |
 ## gifcreator (server mode)
-- `GIFCREATOR_PORT`: port the service will run at
-- `SCENE_PATH`: path to find files for gif creation
-- `MINIO_NAME`: minio server domain name
-- `MINIO_PORT`: minio server port number
-- `MINIO_BUCKET`: minio bucket to be used
-- `MINIO_KEY`: minio access key
-- `MINIO_SECRET`: minio secret key
-- `REDIS_NAME`: redis server domain name
-- `REDIS_PORT`: redis server port number
-- `RENDER_NAME`: renderer domain name
-- `RENDER_PORT`: renderer port number
+| Variable          | Description                         | Default Value        |
+|-------------------|-------------------------------------|----------------------|
+| `GIFCREATOR_PORT` | port the service will run at        | 8082                 |
+| `SCENE_PATH`      | path to find files for gif creation | /scene               |
+| `RENDER_NAME`     | renderer domain name                | localhost            |
+| `RENDER_PORT`     | renderer port number                | 8080                 |
+| `REDIS_NAME`      | redis server domain name            | localhost            |
+| `REDIS_PORT`      | redis server port number            | 6379                 |
+| `MINIO_NAME`      | minio server domain name            | localhost            |
+| `MINIO_PORT`      | minio server port number            | 9000                 |
+| `MINIO_BUCKET`    | minio bucket to be used             | gifbucket            |
+| `MINIO_KEY`       | minio access key                    | minioaccesskeyid     |
+| `MINIO_SECRET`    | minio secret key                    | miniosecretaccesskey |
 ## gifcreator (worker mode)
-- `GIFCREATOR_PORT`: port the service will run at
-- `SCENE_PATH`: path to find files for gif creation
-- `MINIO_NAME`: minio server domain name
-- `MINIO_PORT`: minio server port number
-- `MINIO_BUCKET`: minio bucket to be used
-- `MINIO_KEY`: minio access key
-- `MINIO_SECRET`: minio secret key
-- `REDIS_NAME`: redis server domain name
-- `REDIS_PORT`: redis server port number
-- `RENDER_NAME`: renderer domain name
-- `RENDER_PORT`: renderer port number
+| Variable          | Description                         | Default Value        |
+|-------------------|-------------------------------------|----------------------|
+| `GIFCREATOR_PORT` | port the service will run at        | 8081                 |
+| `SCENE_PATH`      | path to find files for gif creation | /scene               |
+| `RENDER_NAME`     | renderer domain name                | localhost            |
+| `RENDER_PORT`     | renderer port number                | 8080                 |
+| `REDIS_NAME`      | redis server domain name            | localhost            |
+| `REDIS_PORT`      | redis server port number            | 6379                 |
+| `MINIO_NAME`      | minio server domain name            | localhost            |
+| `MINIO_PORT`      | minio server port number            | 9000                 |
+| `MINIO_BUCKET`    | minio bucket to be used             | gifbucket            |
+| `MINIO_KEY`       | minio access key                    | minioaccesskeyid     |
+| `MINIO_SECRET`    | minio secret key                    | miniosecretaccesskey |
 ## frontend
-- `FRONTEND_PORT`: port the service will run at
-- `FRONTEND_TEMPLATES_DIR`: directory for html templates
-- `GIFCREATOR_NAME`: gifcreator server domain name
-- `GIFCREATOR_PORT`: gifcreator server port number
+| Variable                 | Description                   | Default Value
+|--------------------------|-------------------------------|--------------------
+| `FRONTEND_PORT`          | port the service will run at  | 8090
+| `FRONTEND_TEMPLATES_DIR` | directory for html templates  | /templates
+| `GIFCREATOR_NAME`        | gifcreator server domain name | localhost
+| `GIFCREATOR_PORT`        | gifcreator server port number | 8082
 
 # legal stuff
 the original is [here](https://github.com/GoogleCloudPlatform/gifinator) and its license and legal stuff apply, I'm not trying to steal anything
