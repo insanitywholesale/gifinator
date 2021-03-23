@@ -86,7 +86,14 @@ func transform(inputPath string, jobId string) (bytes.Buffer, error) {
 func upload(outBytes []byte, outputPath string, mimeType string, client *minio.Client, ctx context.Context) error {
 	log.Println("outputPath:", outputPath)
 	objName := outputPath
-	uploadInfo, err := client.PutObject(ctx, minioBucket, objName, bytes.NewReader(outBytes), int64(len(outBytes)), minio.PutObjectOptions{ContentType: mimeType})
+	uploadInfo, err := client.PutObject(
+		ctx,
+		minioBucket,
+		objName,
+		bytes.NewReader(outBytes),
+		int64(len(outBytes)),
+		minio.PutObjectOptions{ContentType: mimeType},
+	)
 	if err != nil {
 		fmt.Println(err)
 		return err
