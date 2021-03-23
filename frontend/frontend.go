@@ -24,9 +24,9 @@ import (
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 	"html/template"
+	"log"
 	"net/http"
 	"os"
-	"log"
 	"path/filepath"
 	"strings"
 )
@@ -210,10 +210,9 @@ func handleGifStatus(w http.ResponseWriter, r *http.Request) {
 
 func getInfo(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
-		w.Write([]byte("commitHash: "+commitHash+"\n"))
-		w.Write([]byte("commitDate: "+commitDate+"\n"))
+		w.Write([]byte("commitHash: " + commitHash + "\n"))
+		w.Write([]byte("commitDate: " + commitDate + "\n"))
 		return
 	}
 	return
 }
-
