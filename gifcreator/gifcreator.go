@@ -224,13 +224,11 @@ func (server) StartJob(ctx context.Context, req *pb.StartJobRequest) (*pb.StartJ
 }
 
 func leaseNextTask() error {
-	/**
-	 * We want to make task leasing as robust as possible. We do this by
-	 * shifting the task marker to a 'processing' queue that signals that we are
-	 * trying to work on it. Once the task is done it's removed from the
-	 * processing queue. If this process crashes during processing then a garbage
-	 * collector could move the task back into the 'queueing' queue.
-	 */
+	// We want to make task leasing as robust as possible. We do this by
+	// shifting the task marker to a 'processing' queue that signals that we are
+	// trying to work on it. Once the task is done it's removed from the
+	// processing queue. If this process crashes during processing then a garbage
+	// collector could move the task back into the 'queueing' queue.
 	jobString, err := redisClient.BRPopLPush(redisContext, "gifjob_queued", "gifjob_processing", 0).Result()
 	if err != nil {
 		return err
@@ -290,6 +288,7 @@ func leaseNextTask() error {
 	if err != nil {
 		return err
 	}
+
 	// if qeuedcounter = completedcounter, mark job as done
 	queueLengthInt, _ := strconv.ParseInt(queueLength, 10, 64)
 	fmt.Fprintf(os.Stdout, "job_gifjob_%s : %d of %d tasks done\n", jobIdStr, completedTaskCount, queueLengthInt)
@@ -315,11 +314,9 @@ func leaseNextTask() error {
 	return nil
 }
 
-/**
- * compileGifs() will glob all GCS objects prefixed with prefix, and
- * stitch them together into an animated GIF, store that in GCS and return the
- * path of the final image
- */
+// compileGifs() will glob all minio objects prefixed with prefix, and
+// stitch them together into an animated GIF, store that in minio and
+// return the path of the final image
 func compileGifs(prefix string, tCtx context.Context) (string, error) {
 	log.Println("prefix is", prefix)
 	minioClient, err := minio.New(endpoint, &minio.Options{

@@ -82,7 +82,6 @@ func renderImage(objectPath string, rotation float64, iterations int32) (string,
 	sampler := pt.NewSampler(16, 16)
 	renderer := pt.NewRenderer(&scene, &camera, sampler, 300, 300)
 
-	// TODO(jessup) Fix this for better entropy
 	imagePath := os.TempDir() + "/final_img_itr_%d_" + strconv.FormatInt(int64(rand.Intn(10000)), 16) + ".png"
 	renderer.IterativeRender(imagePath, int(iterations))
 
@@ -93,11 +92,6 @@ func (server) RenderFrame(ctx context.Context, req *pb.RenderRequest) (*pb.Rende
 	fmt.Fprintf(os.Stdout, "starting render job - object: %s, angle: %f\n", req.ObjPath, req.Rotation)
 
 	// Load main object (.obj) file
-	// TODO: fix nil pointer dereference happenning here
-	//objGcsObj, err := minioClient.GetObject(ctx, minioBucket, req.ObjPath, minio.GetObjectOptions{})
-	//if err != nil {
-	//	fmt.Fprintf(os.Stderr, "error getting object %s, err: %v\n", req.ObjPath, err)
-	//}
 	objFilepath, err := cacheMinioObjToDisk(ctx, req.ObjPath)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "error caching %s, err: %v\n", req.ObjPath, err)
@@ -106,7 +100,7 @@ func (server) RenderFrame(ctx context.Context, req *pb.RenderRequest) (*pb.Rende
 
 	// Load the assets
 	for _, element := range req.Assets {
-		assetGcsObj, err := minioClient.GetObject(ctx, minioBucket, element /*maybe*/, minio.GetObjectOptions{})
+		assetGcsObj, err := minioClient.GetObject(ctx, minioBucket, element, minio.GetObjectOptions{})
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "error getting object %s, err: %v\n", req.ObjPath, err)
 		}
