@@ -1,6 +1,7 @@
 - change tests to set config vars through env instead of hardcode
 - move to embed.FS for bundled files both in frontend and gifcreator
 - upload scene files to minio bucket on first run if they don't exist
-- proper logging
 - finish ARCHITECTURE.md
 - add better comments in code
+- add back tracing (opentracing)
+- add proper logging
