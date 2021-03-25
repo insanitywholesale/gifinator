@@ -33,11 +33,11 @@ func TestCompileGifs(t *testing.T) {
 func TestStartJob(t *testing.T) {
 
 	// set up base variables
-	endpoint = "localhost:9000"
-	minioBucket = "gifbucket"
-	accessKeyID = "minioaccesskeyid"
-	secretAccessKey = "miniosecretaccesskey"
-	scenePath = "/scene"
+	//endpoint = "localhost:9000"
+	//minioBucket = "gifbucket"
+	//accessKeyID = "minioaccesskeyid"
+	//secretAccessKey = "miniosecretaccesskey"
+	//scenePath = "/scene"
 	ctx := context.Background()
 	const bufSize = 1024 * 1024
 	var listener *bufconn.Listener
