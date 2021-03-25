@@ -54,7 +54,9 @@ Gifcreator is generally responsible for coordinating the process of sending the 
 At least two instances of the code in this package need to be running at once -- one in server mode and the other in worker mode.
 ### server mode
 Server mode duties:
+
 ### worker mode
 Worker mode duties:
+
 ## `frontend`
 Web frontend for submitting user preferences upon which the gif will be created.

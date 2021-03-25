@@ -1,7 +1,8 @@
 # gifinator
 
 fork of https://github.com/GoogleCloudPlatform/gifinator to run locally and use minio for storage instead of gcs.
-look at TODO for what's left to be done.
+look at TODO.md for what's left to be done.
+look at ARCHITECTURE.md for how the code is structured.
 
 # running (for development)
 the following should be run in the order they are listed and each one in a different terminal
