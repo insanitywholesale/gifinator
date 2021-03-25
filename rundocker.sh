@@ -11,7 +11,10 @@ docker pull minio:latest
 docker network create --driver bridge $NET
 docker run --network $NET --rm --name redis -p 6379:6379 redis:6 &
 sleep 5s
-docker run --network $NET --rm --name minio -p 9000:9000 -v /tmp/docker_data/minio/data:/data -e MINIO_ACCESS_KEY=minioaccesskeyid -e MINIO_SECRET_KEY=miniosecretaccesskey minio/minio:latest server /data &
+docker run --network $NET --rm --name minio -p 9000:9000 -v /tmp/docker_data/minio/data:/data \
+	-e MINIO_ACCESS_KEY=minioaccesskeyid \
+	-e MINIO_SECRET_KEY=miniosecretaccesskey \
+	minio/minio:latest server /data &
 sleep 5s
 docker run --network $NET --rm --name render -p 8080:8080 -e MINIO_NAME=minio $IMG /render &
 sleep 5s
