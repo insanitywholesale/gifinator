@@ -59,7 +59,7 @@ var (
 	renderClient    pb.RenderClient
 	scenePath       string
 	deploymentId    string
-	workerMode      = flag.Bool("worker", false, "run in worker mode rather than server")
+	workerMode = flag.Bool("worker", false, "run in worker mode rather than server")
 	redisName = "localhost"
 	redisPort = "6379"
 	minioBucket     string
@@ -69,6 +69,7 @@ var (
 	useSSL          = false
 )
 
+// Util method to prepare files for rendering based on templates
 func transform(inputPath string, jobId string) (bytes.Buffer, error) {
 	var transformed bytes.Buffer
 	tmpl, err := template.ParseFiles(inputPath)
