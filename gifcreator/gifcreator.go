@@ -59,9 +59,9 @@ var (
 	renderClient    pb.RenderClient
 	scenePath       string
 	deploymentId    string
-	workerMode = flag.Bool("worker", false, "run in worker mode rather than server")
-	redisName = "localhost"
-	redisPort = "6379"
+	workerMode      = flag.Bool("worker", false, "run in worker mode rather than server")
+	redisName       = "localhost"
+	redisPort       = "6379"
 	minioBucket     string
 	endpoint        string
 	accessKeyID     string
