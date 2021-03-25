@@ -41,8 +41,6 @@ import (
 	"time"
 )
 
-const serviceName = "gifcreator"
-
 type server struct{}
 
 type renderJob struct {
