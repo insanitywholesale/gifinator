@@ -62,6 +62,8 @@ var (
 	scenePath       string
 	deploymentId    string
 	workerMode      = flag.Bool("worker", false, "run in worker mode rather than server")
+	redisName = "localhost"
+	redisPort = "6379"
 	minioBucket     string
 	endpoint        string
 	accessKeyID     string
@@ -418,13 +420,11 @@ func main() {
 		}
 		port = "8082"
 	}
-	redisName := os.Getenv("REDIS_NAME")
-	if redisName == "" {
-		redisName = "localhost"
+	if redisName != "" {
+		redisName = os.Getenv("REDIS_NAME")
 	}
-	redisPort := os.Getenv("REDIS_PORT")
-	if redisPort == "" {
-		redisPort = "6379"
+	if redisPort != "" {
+		redisPort = os.Getenv("REDIS_PORT")
 	}
 	renderName := os.Getenv("RENDER_NAME")
 	if renderName == "" {
