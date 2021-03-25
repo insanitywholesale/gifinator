@@ -59,7 +59,6 @@ type renderTask struct {
 var (
 	redisClient     *redis.Client
 	renderClient    pb.RenderClient
-	redisContext    = context.Background()
 	scenePath       string
 	deploymentId    string
 	workerMode      = flag.Bool("worker", false, "run in worker mode rather than server")
@@ -83,8 +82,8 @@ func transform(inputPath string, jobId string) (bytes.Buffer, error) {
 	return transformed, nil
 }
 
+// Utility function to upload something to minio
 func upload(outBytes []byte, outputPath string, mimeType string, client *minio.Client, ctx context.Context) error {
-	log.Println("outputPath:", outputPath)
 	objName := outputPath
 	uploadInfo, err := client.PutObject(
 		ctx,
@@ -98,10 +97,10 @@ func upload(outBytes []byte, outputPath string, mimeType string, client *minio.C
 		fmt.Println(err)
 		return err
 	}
-	fmt.Println("Successfully uploaded bytes: ", uploadInfo)
 	return nil
 }
 
+// Add the text given to the badge image
 func addLabel(img *image.NRGBA, x, y int, label string) error {
 	fontSize := float64(120)
 	f, err := freetype.ParseFont(gobold.TTF)
@@ -121,6 +120,7 @@ func addLabel(img *image.NRGBA, x, y int, label string) error {
 }
 
 func (server) StartJob(ctx context.Context, req *pb.StartJobRequest) (*pb.StartJobResponse, error) {
+	redisContext := context.Background()
 	// Retrieive the next job ID from Redis
 	jobId, err := redisClient.Incr(redisContext, "gifjob_counter").Result()
 	if err != nil {
@@ -138,6 +138,7 @@ func (server) StartJob(ctx context.Context, req *pb.StartJobRequest) (*pb.StartJ
 		return nil, err
 	}
 
+	// Make a new minio client
 	minioClient, err := minio.New(endpoint, &minio.Options{
 		Creds:  credentials.NewStaticV4(accessKeyID, secretAccessKey, ""),
 		Secure: useSSL,
@@ -147,6 +148,7 @@ func (server) StartJob(ctx context.Context, req *pb.StartJobRequest) (*pb.StartJ
 		return nil, err
 	}
 
+	// Set what mascot will be used
 	var productString string
 	switch req.ProductToPlug {
 	case pb.Product_GRPC:
@@ -168,6 +170,7 @@ func (server) StartJob(ctx context.Context, req *pb.StartJobRequest) (*pb.StartJ
 	if err != nil {
 		return nil, err
 	}
+
 	t, err = transform(scenePath+"/"+productString+".mtl.tmpl", jobIdStr)
 	if err != nil {
 		return nil, err
@@ -184,6 +187,8 @@ func (server) StartJob(ctx context.Context, req *pb.StartJobRequest) (*pb.StartJ
 	if err != nil {
 		return nil, err
 	}
+
+	// Add text to badge and upload to minio
 	addLabel(badgeImg.(*image.NRGBA), 90, 120, req.Name)
 	buf := new(bytes.Buffer)
 	err = png.Encode(buf, badgeImg)
@@ -236,6 +241,7 @@ func leaseNextTask() error {
 	// trying to work on it. Once the task is done it's removed from the
 	// processing queue. If this process crashes during processing then a garbage
 	// collector could move the task back into the 'queueing' queue.
+	redisContext := context.Background()
 	jobString, err := redisClient.BRPopLPush(redisContext, "gifjob_queued", "gifjob_processing", 0).Result()
 	if err != nil {
 		return err
@@ -325,7 +331,6 @@ func leaseNextTask() error {
 // stitch them together into an animated GIF, store that in minio and
 // return the path of the final image
 func compileGifs(prefix string, tCtx context.Context) (string, error) {
-	log.Println("prefix is", prefix)
 	minioClient, err := minio.New(endpoint, &minio.Options{
 		Creds:  credentials.NewStaticV4(accessKeyID, secretAccessKey, ""),
 		Secure: useSSL,
@@ -343,7 +348,6 @@ func compileGifs(prefix string, tCtx context.Context) (string, error) {
 	var orderedObjects []minio.ObjectInfo
 	for minioObj := range objectCh {
 		if minioObj.Err != nil {
-			fmt.Println("object error:", minioObj.Err)
 			return "", minioObj.Err
 		}
 		orderedObjects = append(orderedObjects, minioObj)
@@ -377,8 +381,6 @@ func compileGifs(prefix string, tCtx context.Context) (string, error) {
 
 	finalObjName := prefix + "animated.gif"
 
-	log.Println("final gif:", finalGif)
-
 	gifBuffer := new(bytes.Buffer)
 	err = gif.EncodeAll(gifBuffer, finalGif)
 	err = upload(gifBuffer.Bytes(), finalObjName, "image/gif", minioClient, ctx)
@@ -391,6 +393,7 @@ func compileGifs(prefix string, tCtx context.Context) (string, error) {
 	return presignedURL.String(), nil
 }
 
+// Return status of job and url of image
 func (server) GetJob(ctx context.Context, req *pb.GetJobRequest) (*pb.GetJobResponse, error) {
 	var job renderJob
 	statusStr, err := redisClient.Get(redisContext, "job_gifjob_"+string(req.JobId)).Result()
