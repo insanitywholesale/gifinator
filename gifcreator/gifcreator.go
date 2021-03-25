@@ -207,7 +207,7 @@ func (server) StartJob(ctx context.Context, req *pb.StartJobRequest) (*pb.StartJ
 			Caption:     req.Name,
 		}
 
-		//Get new task id
+		// Get new task id
 		taskId, err = redisClient.Incr(redisContext, "counter_queued_gifjob_"+jobIdStr).Result()
 		if err != nil {
 			return nil, err
