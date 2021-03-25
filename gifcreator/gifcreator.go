@@ -420,10 +420,10 @@ func main() {
 		}
 		port = "8082"
 	}
-	if redisName != "" {
+	if os.Getenv("REDIS_NAME") != "" {
 		redisName = os.Getenv("REDIS_NAME")
 	}
-	if redisPort != "" {
+	if os.Getenv("REDIS_PORT") != "" {
 		redisPort = os.Getenv("REDIS_PORT")
 	}
 	renderName := os.Getenv("RENDER_NAME")
