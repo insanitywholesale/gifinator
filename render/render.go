@@ -71,7 +71,7 @@ func renderImage(objectPath string, rotation float64, iterations int32) (string,
 
 	mesh.Transform(pt.Rotate(pt.V(0, 1, 0), pt.Radians(-10)))
 	mesh.SmoothNormals()
-	mesh.FitInside(pt.Box{pt.V(-1, 0, -1), pt.V(1, 2, 1)}, pt.V(0.5, 0, 0.5))
+	mesh.FitInside(pt.Box{Min: pt.V(-1, 0, -1), Max: pt.V(1, 2, 1)}, pt.V(0.5, 0, 0.5))
 	mesh.Transform(pt.Rotate(pt.V(0, 1, 0), pt.Radians(rotation)))
 	scene.Add(mesh)
 
