@@ -11,17 +11,17 @@ COPY . .
 
 WORKDIR /go/src/gifinator/render
 RUN go get -v
-#RUN go vet -v
+RUN go vet -v
 RUN go install -v
 
 WORKDIR /go/src/gifinator/gifcreator
 RUN go get -v
-#RUN go vet -v
+RUN go vet -v
 RUN go install -v
 
 WORKDIR /go/src/gifinator/frontend
 RUN go get -v
-#RUN go vet -v
+RUN go vet -v
 RUN make installwithvars
 
 # run stage

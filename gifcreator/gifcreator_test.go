@@ -31,6 +31,7 @@ func TestCompileGifs(t *testing.T) {
 // from root of repo
 // TODO: this test errors out, need to fix renderer or leaseNextTask or both
 func TestStartJob(t *testing.T) {
+	redisContext := context.Background()
 
 	// set up base variables
 	//endpoint = "localhost:9000"
