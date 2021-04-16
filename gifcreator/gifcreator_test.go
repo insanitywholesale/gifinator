@@ -31,8 +31,6 @@ func TestCompileGifs(t *testing.T) {
 // from root of repo
 // TODO: this test errors out, need to fix renderer or leaseNextTask or both
 func TestStartJob(t *testing.T) {
-	redisContext := context.Background()
-
 	// set up base variables
 	//endpoint = "localhost:9000"
 	//minioBucket = "gifbucket"
@@ -81,7 +79,7 @@ func TestStartJob(t *testing.T) {
 		ProductToPlug: 2,
 	}
 	//run StartJob with the above request
-	res, err := client.StartJob(redisContext, startJobRequest)
+	res, err := client.StartJob(ctx, startJobRequest)
 	if err != nil {
 		t.Log("error starting job:", err)
 	}
