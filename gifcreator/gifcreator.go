@@ -86,7 +86,7 @@ func transform(inputPath string, jobId string) (bytes.Buffer, error) {
 // Utility function to upload something to minio
 func upload(outBytes []byte, outputPath string, mimeType string, client *minio.Client, ctx context.Context) error {
 	objName := outputPath
-	uploadInfo, err := client.PutObject(
+	_, err := client.PutObject(
 		ctx,
 		minioBucket,
 		objName,
