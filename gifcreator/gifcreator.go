@@ -397,6 +397,7 @@ func compileGifs(prefix string, tCtx context.Context) (string, error) {
 // Return status of job and url of image
 func (server) GetJob(ctx context.Context, req *pb.GetJobRequest) (*pb.GetJobResponse, error) {
 	var job renderJob
+	redisContext := context.Background()
 	statusStr, err := redisClient.Get(redisContext, "job_gifjob_"+string(req.JobId)).Result()
 	if err != nil {
 		return nil, err
