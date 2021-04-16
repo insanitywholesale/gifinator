@@ -5,3 +5,4 @@
 - add better comments in code
 - add back tracing (opentracing)
 - add proper logging
+- add git submodule for k8s manifests
