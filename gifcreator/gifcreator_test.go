@@ -32,11 +32,11 @@ func TestCompileGifs(t *testing.T) {
 // TODO: this test errors out, need to fix renderer or leaseNextTask or both
 func TestStartJob(t *testing.T) {
 	// set up base variables
-	//endpoint = "localhost:9000"
-	//minioBucket = "gifbucket"
-	//accessKeyID = "minioaccesskeyid"
-	//secretAccessKey = "miniosecretaccesskey"
-	//scenePath = "/scene"
+	endpoint = "localhost:9000"
+	minioBucket = "gifbucket"
+	accessKeyID = "minioaccesskeyid"
+	secretAccessKey = "miniosecretaccesskey"
+	scenePath = "/scene"
 	ctx := context.Background()
 	const bufSize = 1024 * 1024
 	var listener *bufconn.Listener
