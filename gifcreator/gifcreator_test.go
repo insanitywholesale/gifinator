@@ -5,8 +5,8 @@ import (
 	pb "gitlab.com/insanitywholesale/gifinator/proto"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/test/bufconn"
-	//"gopkg.in/redis.v5" //very outdated api version
 	"github.com/go-redis/redis/v8"
+	//"github.com/alicebob/miniredis"
 	"log"
 	"net"
 	"testing"
@@ -29,7 +29,6 @@ func TestCompileGifs(t *testing.T) {
 // scenePath, redisClient and server should be changed
 // in order to be able to run go test gifcreator/gifcreator_test.go
 // from root of repo
-// TODO: this test errors out, need to fix renderer or leaseNextTask or both
 func TestStartJob(t *testing.T) {
 	// set up base variables
 	endpoint = "localhost:9000"
@@ -43,8 +42,10 @@ func TestStartJob(t *testing.T) {
 	listener = bufconn.Listen(bufSize)
 
 	// initialize redis client
+	//mr, _ := miniredis.Run()
 	redisClient = redis.NewClient(&redis.Options{
 		Addr:     "localhost:6379",
+		//Addr:     mr.Addr(),
 		Password: "", // no password set
 		DB:       0,  // use default DB
 	})
