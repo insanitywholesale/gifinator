@@ -1,13 +1,13 @@
 #!/bin/sh -x
 
-IMG="inherently/gifinator:0.0.4"
+IMG="inherently/gifinator:0.0.5"
 NET="gifnet"
 
 docker pull $IMG
 sleep 5s
 docker pull redis:6
 sleep 5s
-docker pull minio:latest
+docker pull minio/minio:latest
 docker network create --driver bridge $NET
 docker run --network $NET --rm --name redis -p 6379:6379 redis:6 &
 sleep 5s
