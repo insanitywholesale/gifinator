@@ -69,9 +69,8 @@ func main() {
 		return
 	}
 	defer conn.Close()
-	fmt.Println("connected to gifcreator")
-
 	gcClient = pb.NewGifCreatorClient(conn)
+	fmt.Println("connected to gifcreator")
 
 	http.HandleFunc("/", handleForm)
 	http.HandleFunc("/gif/", handleGif)

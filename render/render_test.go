@@ -24,6 +24,9 @@ func TestRenderFrame(t *testing.T) {
 	secretAccessKey := "miniosecretaccesskey"
 	useSSL := false
 
+	// set global var
+	minioBucket = "gifbucket"
+
 	// Initialize minio client object.
 	mC, err := minio.New(endpoint, &minio.Options{
 		Creds:  credentials.NewStaticV4(accessKeyID, secretAccessKey, ""),
@@ -33,7 +36,7 @@ func TestRenderFrame(t *testing.T) {
 		t.Log("minioClient oopsie:", err)
 	}
 
-	// gets rid of nil pointer dereference for SOME reason
+	// gets rid of nil pointer dereference because `:=` results in local scope variables
 	minioClient = mC
 
 	uploadInfo, err := minioClient.FPutObject(ctx, "gifbucket", "test-airboat.obj", "../gifcreator/scene/airboat.obj", minio.PutObjectOptions{})

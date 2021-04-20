@@ -26,10 +26,11 @@ RUN make installwithvars
 
 # run stage
 FROM busybox as run
+RUN mkdir /tmp/objcache
+RUN mkdir /tmp/scene
 COPY --from=build /go/bin/render /render
 COPY --from=build /go/bin/gifcreator /gifcreator
 COPY --from=build /go/bin/frontend /frontend
-RUN mkdir /tmp/objcache
-COPY ./gifcreator/scene /scene
+COPY ./gifcreator/scene /tmp/scene
 COPY ./frontend/templates /templates
 ENV FRONTEND_TEMPLATES_DIR=/templates
