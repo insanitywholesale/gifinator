@@ -2,10 +2,10 @@ package main
 
 import (
 	"context"
+	"github.com/go-redis/redis/v8"
 	pb "gitlab.com/insanitywholesale/gifinator/proto"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/test/bufconn"
-	"github.com/go-redis/redis/v8"
 	//"github.com/alicebob/miniredis"
 	"log"
 	"net"
@@ -33,9 +33,10 @@ func TestStartJob(t *testing.T) {
 	// set up base variables
 	endpoint = "localhost:9000"
 	minioBucket = "gifbucket"
+	minioPublicName = endpoint
 	accessKeyID = "minioaccesskeyid"
 	secretAccessKey = "miniosecretaccesskey"
-	scenePath = "/scene"
+	scenePath = "/tmp/scene"
 	ctx := context.Background()
 	const bufSize = 1024 * 1024
 	var listener *bufconn.Listener
@@ -44,7 +45,7 @@ func TestStartJob(t *testing.T) {
 	// initialize redis client
 	//mr, _ := miniredis.Run()
 	redisClient = redis.NewClient(&redis.Options{
-		Addr:     "localhost:6379",
+		Addr: "localhost:6379",
 		//Addr:     mr.Addr(),
 		Password: "", // no password set
 		DB:       0,  // use default DB

@@ -62,6 +62,7 @@ var (
 	workerMode      = flag.Bool("worker", false, "run in worker mode rather than server")
 	redisName       = "localhost"
 	redisPort       = "6379"
+	minioPublicName string
 	minioBucket     string
 	endpoint        string
 	accessKeyID     string
@@ -385,13 +386,13 @@ func compileGifs(prefix string, tCtx context.Context) (string, error) {
 	gifBuffer := new(bytes.Buffer)
 	err = gif.EncodeAll(gifBuffer, finalGif)
 	err = upload(gifBuffer.Bytes(), finalObjName, "image/gif", minioClient, ctx)
-	// TODO: set final minio object to be public and return the link to it
-	// instead of using a presigned URL so it's always public
-	presignedURL, err := minioClient.PresignedGetObject(ctx, minioBucket, finalObjName, time.Second*24*60*60, nil)
+	presignedURL, err := minioClient.PresignedGetObject(ctx, minioBucket, finalObjName, time.Second*24*3600, nil)
 	if err != nil {
 		return "", err
 	}
-	return presignedURL.String(), nil
+	properURL := strings.Replace(presignedURL.String(), endpoint, minioPublicName, -1)
+	fmt.Println("properURL:", properURL)
+	return properURL, nil
 }
 
 // Return status of job and url of image
@@ -437,7 +438,11 @@ func main() {
 	renderHostAddr := renderName + ":" + renderPort
 	scenePath = os.Getenv("SCENE_PATH")
 	if scenePath == "" {
-		scenePath = "/scene"
+		scenePath = "/tmp/scene"
+	}
+	minioPublicName = os.Getenv("MINIO_PUBLIC_NAME")
+	if minioPublicName == "" {
+		minioPublicName = "localhost"
 	}
 	minioName := os.Getenv("MINIO_NAME")
 	if minioName == "" {

@@ -41,7 +41,7 @@ steps:
   image: golang:1.16
   commands:
   - cd gifcreator
-  - cp -r scene /
+  - cp -r scene /tmp/
   - go get -v
   - go vet -v
   - go build -v

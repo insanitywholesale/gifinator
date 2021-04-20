@@ -19,7 +19,8 @@ docker run --network $NET --rm --name minio \
 	minio/minio:latest server /data &
 sleep 5s
 docker run --network $NET --rm --name render \
-	-p 8080:8080 \
+	-p 8085:8085 \
+	-e RENDER_PORT=8085 \
 	-e MINIO_NAME=minio $IMG /render &
 sleep 5s
 docker run --network $NET --rm --name gifcreator-server \
@@ -28,7 +29,7 @@ docker run --network $NET --rm --name gifcreator-server \
 	-e REDIS_NAME=redis \
 	-e REDIS_PORT=6379 \
 	-e RENDER_NAME=render \
-	-e RENDER_PORT=8080 $IMG /gifcreator &
+	-e RENDER_PORT=8085 $IMG /gifcreator &
 sleep 5s
 docker run --network $NET --rm --name gifcreator-worker \
 	-p 8081:8081 \
@@ -36,7 +37,7 @@ docker run --network $NET --rm --name gifcreator-worker \
 	-e REDIS_NAME=redis \
 	-e REDIS_PORT=6379 \
 	-e RENDER_NAME=render \
-	-e RENDER_PORT=8080 $IMG /gifcreator -worker &
+	-e RENDER_PORT=8085 $IMG /gifcreator -worker &
 sleep 5s
 docker run --network $NET --rm --name frontend \
 	-p 8090:8090 \
