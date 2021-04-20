@@ -62,7 +62,6 @@ var (
 	workerMode      = flag.Bool("worker", false, "run in worker mode rather than server")
 	redisName       = "localhost"
 	redisPort       = "6379"
-	minioPublicName string
 	minioBucket     string
 	endpoint        string
 	accessKeyID     string
@@ -390,9 +389,7 @@ func compileGifs(prefix string, tCtx context.Context) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	properURL := strings.Replace(presignedURL.String(), endpoint, minioPublicName, -1)
-	fmt.Println("properURL:", properURL)
-	return properURL, nil
+	return presignedURL.String(), nil
 }
 
 // Return status of job and url of image
@@ -439,10 +436,6 @@ func main() {
 	scenePath = os.Getenv("SCENE_PATH")
 	if scenePath == "" {
 		scenePath = "/tmp/scene"
-	}
-	minioPublicName = os.Getenv("MINIO_PUBLIC_NAME")
-	if minioPublicName == "" {
-		minioPublicName = "localhost"
 	}
 	minioName := os.Getenv("MINIO_NAME")
 	if minioName == "" {

@@ -33,7 +33,6 @@ func TestStartJob(t *testing.T) {
 	// set up base variables
 	endpoint = "localhost:9000"
 	minioBucket = "gifbucket"
-	minioPublicName = endpoint
 	accessKeyID = "minioaccesskeyid"
 	secretAccessKey = "miniosecretaccesskey"
 	scenePath = "/tmp/scene"
