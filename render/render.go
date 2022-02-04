@@ -167,10 +167,29 @@ func main() {
 		Secure: useSSL,
 	})
 	if err != nil {
-		log.Fatalln(err)
+		log.Fatalf("mreating client failed:", err)
 	}
 	// mC is local-scoped so manually assigning it to the global is needed
 	minioClient = mC
+
+	// There is no Ping method so we use ListBuckets instead
+	_, err = minioClient.ListBuckets(context.Background())
+	if err != nil {
+		log.Fatalln("minio connection failed:", err)
+	}
+
+	err = minioClient.MakeBucket(context.Background(), minioBucket, minio.MakeBucketOptions{Region: "us-east-1"})
+    if err != nil {
+        // Check to see if we already own this bucket
+        exists, errBucketExists := minioClient.BucketExists(context.Background(), minioBucket)
+        if errBucketExists == nil && exists {
+            log.Printf("we already own %s\n", minioBucket)
+        } else {
+            log.Fatalln("making bucket failed:", err)
+        }
+    } else {
+        log.Println("successfully created", minioBucket)
+    }
 
 	serving_port := os.Getenv("RENDER_PORT")
 	if serving_port == "" {
@@ -178,16 +197,14 @@ func main() {
 	}
 	i, err := strconv.Atoi(serving_port)
 	if (err != nil) || (i < 1) {
-		log.Fatalf("please set env var RENDER_PORT to a valid port")
-		return
+		log.Fatalln("reading RENDER_PORT failed:", err)
 	}
 
 	l, err := net.Listen("tcp", ":"+serving_port)
 	if err != nil {
 		log.Fatalf("listen failed: %v", err)
-		return
 	}
-	log.Println("running on port:", serving_port)
+	log.Println("render running on port:", serving_port)
 
 	srv := grpc.NewServer()
 	pb.RegisterRenderServer(srv, server{})
