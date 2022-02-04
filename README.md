@@ -19,7 +19,7 @@ add the following in `/etc/hosts`
 run `./rundocker.sh` from the root of the repo to start all the required containers
 
 ### create bucket and load assets
-go to `http://localhost:9000` and log in using the credentials `minioaccesskeyid` and `miniosecretaccesskey` then create a bucket named `gifbucket` and load all the assets in `gifcreator/scene` to it
+go to `http://localhost:9001` and log in using the credentials `minioaccesskeyid` and `miniosecretaccesskey` then create a bucket named `gifbucket` and load all the assets in `gifcreator/scene` to it
 
 ### visit web frontend
 access http://localhost:8090 using a web browser, fill in the text, select one of the 3 options, click `Create` and wait
@@ -38,7 +38,7 @@ go into its directory and run `./rungifcreator.sh`
 also pretty simple, from inside its directory run `./runfront.sh`
 
 ### create bucket and load assets
-go to `http://localhost:9000` and log in using the credentials `minioaccesskeyid` and `miniosecretaccesskey` then create a bucket named `gifbucket` and load all the assets in `gifcreator/scene` to it
+go to `http://localhost:9001` and log in using the credentials `minioaccesskeyid` and `miniosecretaccesskey` then create a bucket named `gifbucket` and load all the assets in `gifcreator/scene` to it
 
 ## visit web page
 access http://localhost:8090 using a web browser, fill in the text, select one of the 3 options, click `Create` and wait
