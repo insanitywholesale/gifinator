@@ -157,17 +157,17 @@ func (server) StartJob(ctx context.Context, req *pb.StartJobRequest) (*pb.StartJ
 
 	// Create bucket if not exists
 	err = minioClient.MakeBucket(context.Background(), minioBucket, minio.MakeBucketOptions{Region: "us-east-1"})
-    if err != nil {
-        // Check to see if we already own this bucket
-        exists, errBucketExists := minioClient.BucketExists(context.Background(), minioBucket)
-        if errBucketExists == nil && exists {
-            log.Println("we already own", minioBucket)
-        } else {
-            log.Fatalln("making bucket failed:", err)
-        }
-    } else {
-        log.Println("successfully created", minioBucket)
-    }
+	if err != nil {
+		// Check to see if we already own this bucket
+		exists, errBucketExists := minioClient.BucketExists(context.Background(), minioBucket)
+		if errBucketExists == nil && exists {
+			log.Println("we already own", minioBucket)
+		} else {
+			log.Fatalln("making bucket failed:", err)
+		}
+	} else {
+		log.Println("successfully created", minioBucket)
+	}
 
 	// Set what mascot will be used
 	var productString string
@@ -369,17 +369,17 @@ func compileGifs(prefix string, tCtx context.Context) (string, error) {
 
 	// Create bucket if not exists
 	err = minioClient.MakeBucket(context.Background(), minioBucket, minio.MakeBucketOptions{Region: "us-east-1"})
-    if err != nil {
-        // Check to see if we already own this bucket
-        exists, errBucketExists := minioClient.BucketExists(context.Background(), minioBucket)
-        if errBucketExists == nil && exists {
-            log.Println("we already own", minioBucket)
-        } else {
-            log.Fatalln("making bucket failed:", err)
-        }
-    } else {
-        log.Println("successfully created", minioBucket)
-    }
+	if err != nil {
+		// Check to see if we already own this bucket
+		exists, errBucketExists := minioClient.BucketExists(context.Background(), minioBucket)
+		if errBucketExists == nil && exists {
+			log.Println("we already own", minioBucket)
+		} else {
+			log.Fatalln("making bucket failed:", err)
+		}
+	} else {
+		log.Println("successfully created", minioBucket)
+	}
 
 	ctx, cancel := context.WithCancel(tCtx)
 

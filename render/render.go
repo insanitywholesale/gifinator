@@ -179,17 +179,17 @@ func main() {
 	}
 
 	err = minioClient.MakeBucket(context.Background(), minioBucket, minio.MakeBucketOptions{Region: "us-east-1"})
-    if err != nil {
-        // Check to see if we already own this bucket
-        exists, errBucketExists := minioClient.BucketExists(context.Background(), minioBucket)
-        if errBucketExists == nil && exists {
-            log.Printf("we already own %s\n", minioBucket)
-        } else {
-            log.Fatalln("making bucket failed:", err)
-        }
-    } else {
-        log.Println("successfully created", minioBucket)
-    }
+	if err != nil {
+		// Check to see if we already own this bucket
+		exists, errBucketExists := minioClient.BucketExists(context.Background(), minioBucket)
+		if errBucketExists == nil && exists {
+			log.Printf("we already own %s\n", minioBucket)
+		} else {
+			log.Fatalln("making bucket failed:", err)
+		}
+	} else {
+		log.Println("successfully created", minioBucket)
+	}
 
 	serving_port := os.Getenv("RENDER_PORT")
 	if serving_port == "" {
