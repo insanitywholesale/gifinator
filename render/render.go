@@ -167,7 +167,7 @@ func main() {
 		Secure: useSSL,
 	})
 	if err != nil {
-		log.Fatalf("mreating client failed:", err)
+		log.Fatalln("mreating client failed:", err)
 	}
 	// mC is local-scoped so manually assigning it to the global is needed
 	minioClient = mC
@@ -202,7 +202,7 @@ func main() {
 
 	l, err := net.Listen("tcp", ":"+serving_port)
 	if err != nil {
-		log.Fatalf("listen failed: %v", err)
+		log.Fatalln("listen failed:", err)
 	}
 	log.Println("render running on port:", serving_port)
 
