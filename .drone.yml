@@ -52,7 +52,7 @@ steps:
   commands:
   - cd gifcreator
   - cp -r scene /tmp/
-  - scripts/rungifcreator.sh
+  - ../scripts/rungifcreator.sh
   detach: true
 
 - name: frontend

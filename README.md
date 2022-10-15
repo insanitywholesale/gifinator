@@ -42,10 +42,10 @@ from the root of the repo, run `scripts/rundeps.sh`
 this one is pretty simple, use `go run render.go`
 
 ### gifcreator (worker port 8081, server port 8082)
-go into its directory and run `scripts/rungifcreator.sh`
+go into its directory and run `../scripts/rungifcreator.sh`
 
 ### frontend (port 8090)
-also pretty simple, from inside its directory run `scripts/runfront.sh`
+also pretty simple, from inside its directory run `../scripts/runfront.sh`
 
 ### create bucket and load assets
 go to `http://localhost:9001` and log in using the credentials `minioaccesskeyid` and `miniosecretaccesskey` then create a bucket named `gifbucket` and load all the assets in `gifcreator/scene` to it
