@@ -7,5 +7,3 @@
 - add proper logging
 - add git submodule for k8s manifests
 - add `docker-compose.yml` for testing
-- update how minio runs (env vars & ports)
-- update README sections about minio

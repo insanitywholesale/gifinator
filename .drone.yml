@@ -5,10 +5,10 @@ name: default
 steps:
 - name: minioserver
   image: minio/minio
-  command: [ "server", "/data" ]
+  command: [ "server", "/data", "--console-address", ":9001" ]
   environment:
-    MINIO_ACCESS_KEY: minioaccesskeyid
-    MINIO_SECRET_KEY: miniosecretaccesskey
+	MINIO_ROOT_USER: minioaccesskeyid
+	MINIO_ROOT_PASSWORD: miniosecretaccesskey
   detach: true
 
 - name: minioclient
@@ -52,7 +52,7 @@ steps:
   commands:
   - cd gifcreator
   - cp -r scene /tmp/
-  - ./rungifcreator.sh
+  - scripts/rungifcreator.sh
   detach: true
 
 - name: frontend

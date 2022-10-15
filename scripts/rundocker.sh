@@ -15,8 +15,8 @@ docker run --network $NET --rm --name minio \
 	-p 9000:9000 \
 	-p 9001:9001 \
 	-v /tmp/docker_data/minio/data:/data \
-	-e MINIO_ACCESS_KEY=minioaccesskeyid \
-	-e MINIO_SECRET_KEY=miniosecretaccesskey \
+	-e MINIO_ROOT_USER=minioaccesskeyid \
+	-e MINIO_ROOT_PASSWORD=miniosecretaccesskey \
 	minio/minio:latest server /data --console-address ":9001" &
 sleep 5s
 docker run --network $NET --rm --name render \
