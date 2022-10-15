@@ -13,10 +13,11 @@ docker run --network $NET --rm --name redis -p 6379:6379 redis:6 &
 sleep 5s
 docker run --network $NET --rm --name minio \
 	-p 9000:9000 \
+	-p 9001:9001 \
 	-v /tmp/docker_data/minio/data:/data \
 	-e MINIO_ACCESS_KEY=minioaccesskeyid \
 	-e MINIO_SECRET_KEY=miniosecretaccesskey \
-	minio/minio:latest server /data &
+	minio/minio:latest server /data --console-address ":9001" &
 sleep 5s
 docker run --network $NET --rm --name render \
 	-p 8085:8085 \
