@@ -3,11 +3,10 @@ module gifinator/frontend
 go 1.16
 
 require (
-	github.com/golang/protobuf v1.4.3 // indirect
-	gitlab.com/insanitywholesale/gifinator v0.0.0-20210126153212-bd99cb36d0e5
-	golang.org/x/net v0.0.0-20210119194325-5f4716e94777
-	golang.org/x/sys v0.0.0-20210124154548-22da62e12c0c // indirect
-	golang.org/x/text v0.3.5 // indirect
-	google.golang.org/genproto v0.0.0-20210126160654-44e461bb6506 // indirect
-	google.golang.org/grpc v1.35.0
+	gitlab.com/insanitywholesale/gifinator v0.0.0-20220412115213-41bd868cd718
+	golang.org/x/net v0.0.0-20221014081412-f15817d10f9b
+	golang.org/x/sys v0.0.0-20221013171732-95e765b1cc43 // indirect
+	golang.org/x/text v0.3.8 // indirect
+	google.golang.org/genproto v0.0.0-20221014213838-99cd37c6964a // indirect
+	google.golang.org/grpc v1.50.1
 )
