@@ -18,7 +18,7 @@ syntax = "proto3";
 
 package renderdemo;
 
-option go_package = "renderdemo";
+option go_package = "gitlab.com/insanitywholesale/gifinator/proto";
 
 service GifCreator {
   rpc StartJob (StartJobRequest) returns (StartJobResponse);
