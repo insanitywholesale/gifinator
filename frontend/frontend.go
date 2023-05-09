@@ -22,10 +22,12 @@ import (
 	"fmt"
 	"html/template"
 	"log"
+	"net"
 	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	pb "gitlab.com/insanitywholesale/gifinator/proto"
 	"golang.org/x/net/context"
@@ -70,18 +72,41 @@ func main() {
 		fmt.Fprintf(os.Stderr, "cannot connect to gifcreator %s\n%v", gcHostAddr, err)
 		return
 	}
-	defer conn.Close()
+	// Store gifcreator grpc client globally
 	gcClient = pb.NewGifCreatorClient(conn)
 	log.Println("connected to gifcreator")
 
-	http.HandleFunc("/", handleForm)
-	http.HandleFunc("/gif/", handleGif)
-	http.HandleFunc("/check/", handleGifStatus)
-	http.HandleFunc("/info", getInfo)
-	http.Handle("/static/", http.FileServer(http.FS(staticPath)))
+	// Create router
+	m := http.NewServeMux()
+	m.HandleFunc("/", handleForm)
+	m.HandleFunc("/gif/", handleGif)
+	m.HandleFunc("/check/", handleGifStatus)
+	m.HandleFunc("/info", getInfo)
+	m.Handle("/static/", http.FileServer(http.FS(staticPath)))
+
+	// Create HTTP server with timeouts
+	s := &http.Server{
+		Handler:           m,
+		ReadTimeout:       10 * time.Second,
+		ReadHeaderTimeout: 5 * time.Second,
+		WriteTimeout:      20 * time.Second,
+		IdleTimeout:       30 * time.Second,
+	}
+
 	log.Println("about to start serving")
-	err = http.ListenAndServe(":"+port, nil)
-	log.Error(err)
+	// Create listener on provided port
+	l, err := net.Listen("tcp4", ":"+port)
+	if err != nil {
+		conn.Close()
+		log.Fatal(err)
+	}
+
+	// Start HTTP server
+	err = s.Serve(l)
+	if err != nil {
+		conn.Close()
+		log.Fatal(err)
+	}
 }
 
 func handleForm(w http.ResponseWriter, r *http.Request) {
