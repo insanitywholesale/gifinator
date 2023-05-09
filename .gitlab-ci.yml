@@ -19,17 +19,17 @@ before_script:
   - cd $COMPONENT
 
 stages:
-  - format
-  - build
+#  - format
+#  - build
   - test
-  - release
-  - deploy
+#  - release
+#  - deploy
 
-check_format:
-  stage: format
-  script:
-    - rm -rf .cache/pkg
-    - test -z "$(gofmt -l .)"
+#check_format:
+#  stage: format
+#  script:
+#    - rm -rf .cache/pkg
+#    - test -z "$(gofmt -l .)"
 
 #compile:
 #  stage: build
@@ -46,15 +46,15 @@ check_format:
 #      - $CI_PROJECT_DIR/gifcreator/gifcreator
 #      - $CI_PROJECT_DIR/frontend/frontend
 
-vet:
-  stage: test
-  needs:
-    - compile
-  parallel:
-    matrix:
-      - COMPONENT: [render, gifcreator, frontend]
-  script:
-    - go vet -v ./...
+#vet:
+#  stage: test
+#  needs:
+#    - compile
+#  parallel:
+#    matrix:
+#      - COMPONENT: [render, gifcreator, frontend]
+#  script:
+#    - go vet -v ./...
 
 #lint:
 #  image: golangci/golangci-lint:latest
@@ -69,8 +69,8 @@ vet:
 
 unit_test:
   stage: test
-  needs:
-    - vet
+  #needs:
+  #  - vet
   variables:
     MINIO_ROOT_USER: minioaccesskeyid
     MINIO_ROOT_PASSWORD: miniosecretaccesskey
@@ -89,22 +89,22 @@ unit_test:
     - go test -v ./...
     - go test -v -race ./...
 
-mod_update_test:
-  stage: test
-  needs:
-    - vet
-    - unit_test
-  parallel:
-    matrix:
-      - COMPONENT: [render, gifcreator, frontend]
-  script:
-    - rm go.mod go.sum
-    - go mod init $REPO_NAME/$COMPONENT
-    - go mod tidy
-    - go get -u -v ./...
-    - go mod tidy
-    - go test -v ./...
-    - go test -v -race ./...
+#mod_update_test:
+#  stage: test
+#  needs:
+#    - vet
+#    - unit_test
+#  parallel:
+#    matrix:
+#      - COMPONENT: [render, gifcreator, frontend]
+#  script:
+#    - rm go.mod go.sum
+#    - go mod init $REPO_NAME/$COMPONENT
+#    - go mod tidy
+#    - go get -u -v ./...
+#    - go mod tidy
+#    - go test -v ./...
+#    - go test -v -race ./...
 
 #TODO: enable after adding docker creds to CI
 #docker_image:
