@@ -61,18 +61,18 @@ func TestStartJob(t *testing.T) {
 		redisPort = "6379"
 	}
 	t.Log(redisPort)
+
+	redisAddr := redisName + ":" + redisPort
+	redisOpts, err := redis.ParseURL(redisAddr)
+	if err != nil {
+		t.Fatal(redisOpts)
+	}
+	redisOpts.Password = ""
+	redisOpts.DB = 0
+
 	// initialize redis client
 	// mr, _ := miniredis.Run()
-	redisClient = redis.NewClient(&redis.Options{
-		Addr: redisName + ":" + redisPort,
-		// Addr:     mr.Addr(),
-		Password: "", // no password set
-		DB:       0,  // use default DB
-	})
-
-	if redisClient == nil {
-		t.Error("redis client is nil")
-	}
+	redisClient = redis.NewClient(redisOpts)
 
 	// make new grpc server
 	srv := grpc.NewServer()
