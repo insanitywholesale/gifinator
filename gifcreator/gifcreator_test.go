@@ -33,7 +33,15 @@ func TestCompileGifs(t *testing.T) {
 // from root of repo
 func TestStartJob(t *testing.T) {
 	// set up base variables
-	endpoint = "localhost:9000"
+	minioName := os.Getenv("MINIO_NAME")
+	if minioName == "" {
+		minioName = "localhost"
+	}
+	minioPort := os.Getenv("MINIO_PORT")
+	if minioPort == "" {
+		minioPort = "9000"
+	}
+	endpoint = minioName + ":" + minioPort
 	minioBucket = "gifbucket"
 	accessKeyID = "minioaccesskeyid"
 	secretAccessKey = "miniosecretaccesskey"
@@ -42,10 +50,18 @@ func TestStartJob(t *testing.T) {
 	const bufSize = 1024 * 1024
 	listener := bufconn.Listen(bufSize)
 
+	redisName := "localhost"
+	if os.Getenv("REDIS_NAME") != "" {
+		redisName = os.Getenv("REDIS_NAME")
+	}
+	redisPort := "6379"
+	if os.Getenv("REDIS_PORT") != "" {
+		redisPort = os.Getenv("REDIS_PORT")
+	}
 	// initialize redis client
 	// mr, _ := miniredis.Run()
 	redisClient = redis.NewClient(&redis.Options{
-		Addr: "localhost:6379",
+		Addr: redisName + ":" + redisPort,
 		// Addr:     mr.Addr(),
 		Password: "", // no password set
 		DB:       0,  // use default DB
