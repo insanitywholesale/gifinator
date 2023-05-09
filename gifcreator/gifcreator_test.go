@@ -51,13 +51,17 @@ func TestStartJob(t *testing.T) {
 		DB:       0,  // use default DB
 	})
 
+	if redisClient == nil {
+		t.Error("redis client is nil")
+	}
+
 	// make new grpc server
 	srv := grpc.NewServer()
 	pb.RegisterGifCreatorServer(srv, server{})
 	go func() {
 		err := srv.Serve(listener)
 		if err != nil {
-			t.Log("server error:", err)
+			t.Error("server error:", err)
 		}
 	}()
 
@@ -69,7 +73,7 @@ func TestStartJob(t *testing.T) {
 		grpc.WithInsecure(),
 	)
 	if err != nil {
-		t.Log("grpc dial error:", err)
+		t.Error("grpc dial error:", err)
 	}
 	defer conn.Close()
 
@@ -83,10 +87,10 @@ func TestStartJob(t *testing.T) {
 	// run StartJob with the above request
 	res, err := client.StartJob(ctx, startJobRequest)
 	if err != nil {
-		t.Log("error starting job:", err)
+		t.Fatal("error starting job:", err)
 	}
-	log.Println("response:", res)
-	log.Println("response id:", res.JobId)
+	t.Log("response:", res)
+	t.Log("response id:", res.JobId)
 }
 
 func TestWorkerMode(t *testing.T) {
@@ -116,7 +120,7 @@ func TestWorkerMode(t *testing.T) {
 	// poll the task queue and lease tasks
 	err = leaseNextTask()
 	if err != nil {
-		t.Log("error working on task", err)
+		t.Error("error working on task", err)
 	}
 	time.Sleep(10 * time.Millisecond)
 	conn.Close()
