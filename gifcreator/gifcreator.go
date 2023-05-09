@@ -62,7 +62,6 @@ var (
 	redisClient     *redis.Client
 	renderClient    pb.RenderClient
 	scenePath       string
-	deploymentID    string
 	workerMode      = flag.Bool("worker", false, "run in worker mode rather than server")
 	redisName       = "localhost"
 	redisPort       = "6379"
@@ -88,7 +87,7 @@ func transform(inputPath string, jobID string) (bytes.Buffer, error) {
 }
 
 // Utility function to upload something to minio
-func upload(outBytes []byte, outputPath string, mimeType string, client *minio.Client, ctx context.Context) error {
+func upload(outBytes []byte, outputPath string, mimeType string, client *minio.Client, ctx context.Context) error { //nolint:revive
 	objName := outputPath
 	_, err := client.PutObject(
 		ctx,
@@ -355,7 +354,7 @@ func leaseNextTask() error {
 // compileGifs() will glob all minio objects prefixed with prefix, and
 // stitch them together into an animated GIF, store that in minio and
 // return the path of the final image
-func compileGifs(prefix string, tCtx context.Context) (string, error) {
+func compileGifs(prefix string, tCtx context.Context) (string, error) { //nolint:revive
 	minioClient, err := minio.New(endpoint, &minio.Options{
 		Creds:  credentials.NewStaticV4(accessKeyID, secretAccessKey, ""),
 		Secure: useSSL,
@@ -413,6 +412,9 @@ func compileGifs(prefix string, tCtx context.Context) (string, error) {
 		var opt gif.Options
 		opt.NumColors = 256
 		err = gif.Encode(&gifBuf, framePng, &opt)
+		if err != nil {
+			return "", err
+		}
 
 		frameGif, err := gif.Decode(&gifBuf)
 		if err != nil {

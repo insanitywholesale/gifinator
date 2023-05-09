@@ -107,7 +107,7 @@ func TestWorkerMode(t *testing.T) {
 	})
 
 	// dial grpc server started by the renderer
-	conn, err := grpc.Dial(renderHostAddr, grpc.WithInsecure())
+	conn, err := grpc.Dial(renderHostAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		t.Log("error connecting to renderer at", renderHostAddr, err)
 	}

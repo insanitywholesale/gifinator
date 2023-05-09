@@ -17,8 +17,7 @@ import (
 func TestRenderFrame(t *testing.T) {
 	ctx := context.Background()
 	const bufSize = 1024 * 1024
-	var listener *bufconn.Listener
-	listener = bufconn.Listen(bufSize)
+	listener := bufconn.Listen(bufSize)
 	// minio client data
 	endpoint := "localhost:9000"
 	accessKeyID := "minioaccesskeyid"
@@ -59,7 +58,7 @@ func TestRenderFrame(t *testing.T) {
 		ctx,
 		"bufnet",
 		grpc.WithContextDialer(func(context.Context, string) (net.Conn, error) { return listener.Dial() }),
-		grpc.WithInsecure(),
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	)
 	if err != nil {
 		t.Log("grpc dial error:", err)
