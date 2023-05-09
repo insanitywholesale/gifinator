@@ -118,13 +118,43 @@ func TestWorkerMode(t *testing.T) {
 	// set up base variables
 	*workerMode = true
 	renderHostAddr := "localhost:8080"
-	scenePath = "/scene"
 
+	minioName := os.Getenv("MINIO_NAME")
+	if minioName == "" {
+		minioName = "localhost"
+	}
+	minioPort := os.Getenv("MINIO_PORT")
+	if minioPort == "" {
+		minioPort = "9000"
+	}
+	endpoint = minioName + ":" + minioPort
+	minioBucket = "gifbucket"
+	accessKeyID = "minioaccesskeyid"
+	secretAccessKey = "miniosecretaccesskey"
+	scenePath = "/tmp/scene"
+
+	redisName := os.Getenv("REDIS_NAME")
+	if redisName == "" {
+		redisName = "localhost"
+	}
+	t.Log(redisName)
+	redisPort := os.Getenv("REDIS_PORT")
+	if redisPort == "" {
+		redisPort = "6379"
+	}
+	t.Log(redisPort)
+
+	redisAddr := redisName + ":" + redisPort
+	if strings.HasPrefix(redisPort, "tcp://") {
+		redisAddr = strings.TrimPrefix(redisPort, "tcp://")
+	}
+	t.Log("redisAddr:", redisAddr)
 	// initialize redis client
+	// mr, _ := miniredis.Run()
 	redisClient = redis.NewClient(&redis.Options{
-		Addr:     "localhost:6379",
-		Password: "", // no password set
-		DB:       0,  // use default DB
+		Addr:     redisAddr,
+		Password: "",
+		DB:       0,
 	})
 
 	// dial grpc server started by the renderer
