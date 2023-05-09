@@ -165,6 +165,7 @@ func TestWorkerMode(t *testing.T) {
 
 	// create new render client with the above connection
 	renderClient = pb.NewRenderClient(conn)
+	defer conn.Close()
 
 	log.Println("connected to renderer at", renderHostAddr)
 
@@ -174,6 +175,5 @@ func TestWorkerMode(t *testing.T) {
 		t.Error("error working on task", err)
 	}
 	time.Sleep(10 * time.Millisecond)
-	conn.Close()
 	// needs additions to actually test
 }
