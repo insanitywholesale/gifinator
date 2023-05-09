@@ -79,7 +79,7 @@ func main() {
 	http.HandleFunc("/info", getInfo)
 	http.Handle("/static/", http.FileServer(http.FS(staticPath)))
 	log.Println("about to start serving")
-	err := http.ListenAndServe(":"+port, nil)
+	err = http.ListenAndServe(":"+port, nil)
 	log.Fatal(err)
 }
 
