@@ -6,6 +6,7 @@ import (
 	"net"
 	"os"
 	"testing"
+	"strings"
 	"time"
 
 	_ "github.com/alicebob/miniredis" // unused for now
@@ -62,7 +63,11 @@ func TestStartJob(t *testing.T) {
 	}
 	t.Log(redisPort)
 
-	redisAddr := "redis:tcp://" + redisName + ":" + redisPort
+	redisAddr := redisName + ":" + redisPort
+	if !strings.HasPrefix(redisAddr, "redis:tcp://") {
+		redisAddr = "redis:tcp://" + redisAddr
+	}
+	t.Log("redis addr:", redisAddr)
 	redisOpts, err := redis.ParseURL(redisAddr)
 	if err != nil {
 		t.Log(err)
