@@ -42,7 +42,9 @@ import (
 	"google.golang.org/grpc"
 )
 
-type server struct{}
+type server struct {
+	pb.UnimplementedGifCreatorServer
+}
 
 type renderJob struct {
 	Status         pb.GetJobResponse_Status

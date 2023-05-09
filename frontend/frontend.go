@@ -28,9 +28,9 @@ import (
 	"strings"
 
 	pb "gitlab.com/insanitywholesale/gifinator/proto"
-	"google.golang.org/grpc/credentials/insecure"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 )
 
 var (
@@ -65,7 +65,7 @@ func main() {
 
 	gcHostAddr := gifcreatorName + ":" + gifcreatorPort
 
-	conn, err := grpc.Dial(gcHostAddr, grpc.WithTransportCredentials(insecure.NewCredentials())
+	conn, err := grpc.Dial(gcHostAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "cannot connect to gifcreator %s\n%v", gcHostAddr, err)
 		return

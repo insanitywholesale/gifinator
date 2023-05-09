@@ -32,7 +32,9 @@ import (
 	"google.golang.org/grpc"
 )
 
-type server struct{}
+type server struct {
+	pb.UnimplementedRenderServer
+}
 
 var (
 	minioClient *minio.Client
