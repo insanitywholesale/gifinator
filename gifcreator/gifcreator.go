@@ -210,7 +210,10 @@ func (server) StartJob(ctx context.Context, req *pb.StartJobRequest) (*pb.StartJ
 	}
 
 	// Add text to badge and upload to minio
-	addLabel(badgeImg.(*image.NRGBA), 90, 120, req.Name)
+	err = addLabel(badgeImg.(*image.NRGBA), 90, 120, req.Name)
+	if err != nil {
+		return nil, err
+	}
 	buf := new(bytes.Buffer)
 	err = png.Encode(buf, badgeImg)
 	if err != nil {
