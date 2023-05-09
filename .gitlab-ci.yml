@@ -1,0 +1,97 @@
+# TODO: make better as seen here: https://developpaper.com/configuring-gitlab-ci-for-golang-project/
+# link to original: https://gitlab.com/gitlab-org/gitlab/-/blob/master/lib/gitlab/ci/templates/Go.gitlab-ci.yml
+image: golang:1.20
+cache:
+  - key: module-cache-$CI_COMMIT_REF_SLUG
+    paths:
+      - .cache
+
+variables:
+  REPO_NAME: gitlab.com/insanitywholesale/gifinator
+  PLATFORMS: linux/amd64,linux/arm64
+  DOCKER_DRIVER: overlay2
+  DOCKER_HOST: "tcp://docker:2375"
+  DOCKER_TLS_CERTDIR: ""
+
+before_script:
+  - mkdir -p .cache
+  - export GOPATH="$CI_PROJECT_DIR/.cache"
+
+stages:
+  - format
+  - build
+  - test
+  - release
+  - deploy
+
+check_format:
+  stage: format
+  script:
+    - rm -rf .cache/pkg
+    - test -z "$(gofmt -l .)"
+
+#TODO: parallel matrix the compiles
+compile:
+  stage: build
+  needs:
+    - check_format
+  script:
+    - echo TODO parallel matrix the compiles
+
+vet:
+  stage: test
+  needs:
+    - compile
+  script:
+    - go vet -v ./...
+
+lint:
+  image: golangci/golangci-lint:latest
+  stage: test
+  needs:
+    - compile
+  script:
+    - golangci-lint run -v
+
+unit_test:
+  stage: test
+  needs:
+    - vet
+  script:
+    - go test -v ./...
+    - go test -v -race ./...
+
+mod_update_test:
+  stage: test
+  needs:
+    - vet
+    - unit_test
+  script:
+    - rm go.mod go.sum
+    - go mod init $REPO_NAME
+    - go mod tidy
+    - go get -u -v ./...
+    - go mod tidy
+    - go test -v ./...
+    - go test -v -race ./...
+
+#TODO: enable after adding docker creds to CI
+#docker_image:
+#  image:
+#    name: jdrouet/docker-with-buildx:20.10.21-0.9.1
+#  stage: release
+#  needs:
+#    - vet
+#    - lint
+#    - unit_test
+#    - mod_update_test
+#  services:
+#    - name: docker:23.0.1-dind
+#      alias: docker
+#  before_script:
+#    - apk add --no-cache tzdata
+#    - docker login -u inherently -p $DOCKER_AUTH_PASSWORD
+#    - docker buildx create --platform ${PLATFORMS} --name testci --use
+#    - docker buildx inspect testci
+#  script:
+#    - docker buildx build --push --platform ${PLATFORMS} -t inherently/gifinator:latest .

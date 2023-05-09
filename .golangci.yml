@@ -1,0 +1,40 @@
+linters:
+  #enable-all: true
+  enable:
+    - asciicheck
+    - depguard
+    - errcheck
+    - errorlint
+    - forbidigo
+    - gofmt
+    - gofumpt
+    - goheader
+    - goimports
+    - gosec
+    - gocritic
+    - importas
+    - prealloc
+    - revive
+    - misspell
+    - stylecheck
+    - tparallel
+    - unconvert
+    - unparam
+    - unused
+    - whitespace
+linters-settings:
+  depguard:
+    include-go-root: true
+  errcheck:
+    exclude-functions:
+      - (net/http.ResponseWriter).Write
+      - (*net/http.ResponseWriter).Write
+      - (net/http.Server).Serve
+      - (*net/http.Server).Serve
+      - (google.golang.org/grpc.Server).Serve
+      - (*google.golang.org/grpc.Server).Serve
+output:
+  uniq-by-line: false
+run:
+  issues-exit-code: 1
+  timeout: 13m
