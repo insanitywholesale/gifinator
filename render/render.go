@@ -41,13 +41,12 @@ var (
 	minioBucket string
 )
 
-func cacheMinioObjToDisk(ctx context.Context, fileName string) (string, error) {
+func cacheMinioObjToDisk(_ context.Context, fileName string) (string, error) {
 	basePath := "/tmp/objcache"
 	fullPath := basePath + "/" + fileName
 	log.Println("filename", fileName)
 	err := minioClient.FGetObject(context.Background(), minioBucket, fileName, fullPath, minio.GetObjectOptions{})
 	if err != nil {
-		fmt.Println("err:", err)
 		return "", err
 	}
 	return fullPath, nil
@@ -85,7 +84,7 @@ func renderImage(objectPath string, rotation float64, iterations int32) (string,
 	sampler := pt.NewSampler(16, 16)
 	renderer := pt.NewRenderer(&scene, &camera, sampler, 300, 300)
 
-	imagePath := os.TempDir() + "/final_img_itr_%d_" + strconv.FormatInt(int64(rand.Intn(10000)), 16) + ".png"
+	imagePath := os.TempDir() + "/final_img_itr_%d_" + strconv.FormatInt(int64(rand.Intn(10000)), 16) + ".png" //nolint:gosec
 	renderer.IterativeRender(imagePath, int(iterations))
 
 	return fmt.Sprintf(imagePath, iterations), nil
@@ -97,19 +96,17 @@ func (server) RenderFrame(ctx context.Context, req *pb.RenderRequest) (*pb.Rende
 	// Load main object (.obj) file
 	objFilepath, err := cacheMinioObjToDisk(ctx, req.ObjPath)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "error caching %s, err: %v\n", req.ObjPath, err)
 		return nil, err
 	}
 
 	// Load the assets
 	for _, element := range req.Assets {
-		assetGcsObj, err := minioClient.GetObject(ctx, minioBucket, element, minio.GetObjectOptions{})
+		_, err := minioClient.GetObject(ctx, minioBucket, element, minio.GetObjectOptions{})
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "error getting object %s, err: %v\n", req.ObjPath, err)
+			return nil, err
 		}
 		_, err = cacheMinioObjToDisk(ctx, element)
 		if err != nil {
-			fmt.Println("err caching object:", assetGcsObj, "error:", err)
 			return nil, err
 		}
 	}
@@ -125,7 +122,7 @@ func (server) RenderFrame(ctx context.Context, req *pb.RenderRequest) (*pb.Rende
 	// name of the final image that will be saved to minio
 	imgFinalName := fmt.Sprintf("%s.image_%.0frad.png", req.GcsOutputBase, req.Rotation)
 	// change renderImage to return a filename to use here so I don't have to do the following
-	// find last occurance of / and get the string from there to the end
+	// find last occurrence of / and get the string from there to the end
 	// the slice trick results in an error
 	// I winged it and didn't think about what happens when it returns -1
 	// AKA what happens when the imgPath is not GCS-related
@@ -135,7 +132,7 @@ func (server) RenderFrame(ctx context.Context, req *pb.RenderRequest) (*pb.Rende
 	if err != nil {
 		log.Println("error uploading image to minio", err)
 	}
-	fmt.Println("uploaded:", uploadInfo)
+	log.Println("upload info:", uploadInfo)
 	response := pb.RenderResponse{GcsOutput: imgFinalName}
 	return &response, nil
 }
@@ -194,20 +191,20 @@ func main() {
 		log.Println("successfully created", minioBucket)
 	}
 
-	serving_port := os.Getenv("RENDER_PORT")
-	if serving_port == "" {
-		serving_port = "8080"
+	servingPort := os.Getenv("RENDER_PORT")
+	if servingPort == "" {
+		servingPort = "8080"
 	}
-	i, err := strconv.Atoi(serving_port)
+	i, err := strconv.Atoi(servingPort)
 	if (err != nil) || (i < 1) {
 		log.Fatalln("reading RENDER_PORT failed:", err)
 	}
 
-	l, err := net.Listen("tcp", ":"+serving_port)
+	l, err := net.Listen("tcp", ":"+servingPort)
 	if err != nil {
 		log.Fatalln("listen failed:", err)
 	}
-	log.Println("render running on port:", serving_port)
+	log.Println("render running on port:", servingPort)
 
 	srv := grpc.NewServer()
 	pb.RegisterRenderServer(srv, server{})

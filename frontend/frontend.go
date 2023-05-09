@@ -232,7 +232,7 @@ func handleGifStatus(w http.ResponseWriter, r *http.Request) {
 	}
 
 	jsonReponse, _ := json.Marshal(response)
-	fmt.Fprintf(w, string(jsonReponse))
+	w.Write(jsonReponse)
 }
 
 func getInfo(w http.ResponseWriter, r *http.Request) {
