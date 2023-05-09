@@ -87,6 +87,8 @@ unit_test:
       alias: minio
       command: ["server", "/data"]
   script:
+    - mkdir /tmp/scene
+    - cp -r $CI_PROJECT_DIR/gifcreator/scene/* /tmp/scene/
     - go test -v ./...
     - go test -v -race ./...
 
