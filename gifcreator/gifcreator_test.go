@@ -51,14 +51,16 @@ func TestStartJob(t *testing.T) {
 	const bufSize = 1024 * 1024
 	listener := bufconn.Listen(bufSize)
 
-	redisName := "localhost"
-	if os.Getenv("REDIS_NAME") != "" {
-		redisName = os.Getenv("REDIS_NAME")
+	redisName := os.Getenv("REDIS_NAME")
+	if redisName == "" {
+		redisName = "localhost"
 	}
-	redisPort := "6379"
-	if os.Getenv("REDIS_PORT") != "" {
-		redisPort = os.Getenv("REDIS_PORT")
+	t.Log(redisName)
+	redisPort := os.Getenv("REDIS_PORT")
+	if redisPort == "" {
+		redisPort = "6379"
 	}
+	t.Log(redisPort)
 	// initialize redis client
 	// mr, _ := miniredis.Run()
 	redisClient = redis.NewClient(&redis.Options{
