@@ -19,16 +19,17 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/fogleman/pt/pt"
-	"github.com/minio/minio-go/v7"
-	"github.com/minio/minio-go/v7/pkg/credentials"
-	pb "gitlab.com/insanitywholesale/gifinator/proto"
-	"google.golang.org/grpc"
 	"log"
 	"math/rand"
 	"net"
 	"os"
 	"strconv"
+
+	"github.com/fogleman/pt/pt"
+	"github.com/minio/minio-go/v7"
+	"github.com/minio/minio-go/v7/pkg/credentials"
+	pb "gitlab.com/insanitywholesale/gifinator/proto"
+	"google.golang.org/grpc"
 )
 
 type server struct{}
@@ -127,7 +128,7 @@ func (server) RenderFrame(ctx context.Context, req *pb.RenderRequest) (*pb.Rende
 	// I winged it and didn't think about what happens when it returns -1
 	// AKA what happens when the imgPath is not GCS-related
 
-	//imgFileName := strings.TrimLeft(imgPath[strings.LastIndex(imgPath, "/"):], "/")
+	// imgFileName := strings.TrimLeft(imgPath[strings.LastIndex(imgPath, "/"):], "/")
 	uploadInfo, err := minioClient.FPutObject(ctx, minioBucket, imgFinalName, imgPath, minio.PutObjectOptions{})
 	if err != nil {
 		log.Println("error uploading image to minio", err)

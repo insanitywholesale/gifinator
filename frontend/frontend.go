@@ -20,15 +20,16 @@ import (
 	"embed"
 	"encoding/json"
 	"fmt"
-	pb "gitlab.com/insanitywholesale/gifinator/proto"
-	"golang.org/x/net/context"
-	"google.golang.org/grpc"
 	"html/template"
 	"log"
 	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
+
+	pb "gitlab.com/insanitywholesale/gifinator/proto"
+	"golang.org/x/net/context"
+	"google.golang.org/grpc"
 )
 
 var (
@@ -84,7 +85,7 @@ func main() {
 func handleForm(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" {
 		// Get the form info, verify, and pass on
-		var formErrors = []string{}
+		formErrors := []string{}
 		var gifName string
 		var mascotType pb.Product
 		r.ParseForm()
@@ -150,17 +151,16 @@ func handleGif(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// TODO(jessup) Look up to see if the gif has loaded. If not, show the Spinner.
-	response, err :=
-		gcClient.GetJob(
-			context.Background(),
-			&pb.GetJobRequest{JobId: pathSegments[2]})
+	response, err := gcClient.GetJob(
+		context.Background(),
+		&pb.GetJobRequest{JobId: pathSegments[2]})
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "cannot get status of gif - %v", err)
 		return
 	}
 
 	var bodyHtmlPath string
-	var gifInfo = responsePageData{
+	gifInfo := responsePageData{
 		ImageId: pathSegments[2],
 	}
 	switch response.Status {
@@ -193,10 +193,9 @@ func handleGifStatus(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// TODO(jessup) Need stronger input validation here.
-	response, err :=
-		gcClient.GetJob(
-			context.Background(),
-			&pb.GetJobRequest{JobId: pathSegments[2]})
+	response, err := gcClient.GetJob(
+		context.Background(),
+		&pb.GetJobRequest{JobId: pathSegments[2]})
 	if err != nil {
 		// TODO(jessup) Swap these out for proper logging
 		fmt.Fprintf(os.Stderr, "cannot get status of gif - %v", err)

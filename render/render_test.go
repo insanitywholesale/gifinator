@@ -2,14 +2,15 @@ package main
 
 import (
 	"context"
+	"log"
+	"net"
+	"testing"
+
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
 	pb "gitlab.com/insanitywholesale/gifinator/proto"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/test/bufconn"
-	"log"
-	"net"
-	"testing"
 )
 
 // this test is pretty bs, needs improvements

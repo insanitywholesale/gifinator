@@ -22,13 +22,6 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"github.com/go-redis/redis/v8"
-	"github.com/golang/freetype"
-	"github.com/minio/minio-go/v7"
-	"github.com/minio/minio-go/v7/pkg/credentials"
-	pb "gitlab.com/insanitywholesale/gifinator/proto"
-	"golang.org/x/image/font/gofont/gobold"
-	"google.golang.org/grpc"
 	"image"
 	"image/gif"
 	"image/png"
@@ -39,6 +32,14 @@ import (
 	"strings"
 	"text/template"
 	"time"
+
+	"github.com/go-redis/redis/v8"
+	"github.com/golang/freetype"
+	"github.com/minio/minio-go/v7"
+	"github.com/minio/minio-go/v7/pkg/credentials"
+	pb "gitlab.com/insanitywholesale/gifinator/proto"
+	"golang.org/x/image/font/gofont/gobold"
+	"google.golang.org/grpc"
 )
 
 type server struct{}
@@ -130,7 +131,7 @@ func (server) StartJob(ctx context.Context, req *pb.StartJobRequest) (*pb.StartJ
 	jobIdStr := strconv.FormatInt(jobId, 10)
 
 	// Create a new RenderJob queue for that job
-	var job = renderJob{
+	job := renderJob{
 		Status: pb.GetJobResponse_PENDING,
 	}
 	payload, _ := json.Marshal(job)
@@ -222,7 +223,7 @@ func (server) StartJob(ctx context.Context, req *pb.StartJobRequest) (*pb.StartJ
 	var taskId int64
 	for i := 0; i < 15; i++ {
 		// Set up render request for each frame
-		var task = renderTask{
+		task := renderTask{
 			Frame:       int64(i),
 			ProductType: req.ProductToPlug,
 			Caption:     req.Name,
@@ -287,7 +288,7 @@ func leaseNextTask() error {
 	}
 
 	req := &pb.RenderRequest{
-		GcsOutputBase: "jobnum" + jobIdStr, //this is the prefix for all/most objects of this job
+		GcsOutputBase: "jobnum" + jobIdStr, // this is the prefix for all/most objects of this job
 		ObjPath:       "job_" + jobIdStr + ".obj",
 		Assets: []string{
 			"job_" + jobIdStr + ".mtl",
@@ -333,7 +334,7 @@ func leaseNextTask() error {
 		}
 
 		fmt.Fprintf(os.Stdout, "final image path: %s\n", finalImagePath)
-		var job = renderJob{
+		job := renderJob{
 			Status:         pb.GetJobResponse_DONE,
 			FinalImagePath: finalImagePath,
 		}
@@ -510,7 +511,6 @@ func main() {
 		fmt.Fprintf(os.Stdout, "starting gifcreator in worker mode\n")
 
 		conn, err := grpc.Dial(renderHostAddr, grpc.WithInsecure())
-
 		if err != nil {
 			// TODO(jessup) Swap these out for proper logging
 			fmt.Fprintf(os.Stderr, "cannot connect to render service %s\n%v", renderHostAddr, err)

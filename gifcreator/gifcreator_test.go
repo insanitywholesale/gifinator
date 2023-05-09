@@ -2,15 +2,16 @@ package main
 
 import (
 	"context"
+	"log"
+	"net"
+	"testing"
+	"time"
+
 	"github.com/go-redis/redis/v8"
 	pb "gitlab.com/insanitywholesale/gifinator/proto"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/test/bufconn"
 	//"github.com/alicebob/miniredis"
-	"log"
-	"net"
-	"testing"
-	"time"
 )
 
 // TODO: tests b bork; two different instances (one in server mode, one in worker mode) are needed
@@ -42,10 +43,10 @@ func TestStartJob(t *testing.T) {
 	listener = bufconn.Listen(bufSize)
 
 	// initialize redis client
-	//mr, _ := miniredis.Run()
+	// mr, _ := miniredis.Run()
 	redisClient = redis.NewClient(&redis.Options{
 		Addr: "localhost:6379",
-		//Addr:     mr.Addr(),
+		// Addr:     mr.Addr(),
 		Password: "", // no password set
 		DB:       0,  // use default DB
 	})
@@ -72,21 +73,20 @@ func TestStartJob(t *testing.T) {
 	}
 	defer conn.Close()
 
-	//create new client in order to run StartJob
+	// create new client in order to run StartJob
 	client := pb.NewGifCreatorClient(conn)
-	//create a StartJobRequest to use
+	// create a StartJobRequest to use
 	startJobRequest := &pb.StartJobRequest{
 		Name:          "k8s",
 		ProductToPlug: 2,
 	}
-	//run StartJob with the above request
+	// run StartJob with the above request
 	res, err := client.StartJob(ctx, startJobRequest)
 	if err != nil {
 		t.Log("error starting job:", err)
 	}
 	log.Println("response:", res)
 	log.Println("response id:", res.JobId)
-
 }
 
 func TestWorkerMode(t *testing.T) {
