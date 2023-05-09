@@ -7,11 +7,12 @@ import (
 	"testing"
 	"time"
 
+	_ "github.com/alicebob/miniredis" // unused for now
 	"github.com/go-redis/redis/v8"
 	pb "gitlab.com/insanitywholesale/gifinator/proto"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/test/bufconn"
-	//"github.com/alicebob/miniredis"
 )
 
 // TODO: tests b bork; two different instances (one in server mode, one in worker mode) are needed
@@ -39,8 +40,7 @@ func TestStartJob(t *testing.T) {
 	scenePath = "/tmp/scene"
 	ctx := context.Background()
 	const bufSize = 1024 * 1024
-	var listener *bufconn.Listener
-	listener = bufconn.Listen(bufSize)
+	listener := bufconn.Listen(bufSize)
 
 	// initialize redis client
 	// mr, _ := miniredis.Run()
@@ -70,7 +70,7 @@ func TestStartJob(t *testing.T) {
 		ctx,
 		"bufnet",
 		grpc.WithContextDialer(func(context.Context, string) (net.Conn, error) { return listener.Dial() }),
-		grpc.WithInsecure(),
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	)
 	if err != nil {
 		t.Error("grpc dial error:", err)

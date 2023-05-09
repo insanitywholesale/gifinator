@@ -40,6 +40,7 @@ import (
 	pb "gitlab.com/insanitywholesale/gifinator/proto"
 	"golang.org/x/image/font/gofont/gobold"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 )
 
 type server struct {
@@ -61,7 +62,7 @@ var (
 	redisClient     *redis.Client
 	renderClient    pb.RenderClient
 	scenePath       string
-	deploymentId    string
+	deploymentID    string
 	workerMode      = flag.Bool("worker", false, "run in worker mode rather than server")
 	redisName       = "localhost"
 	redisPort       = "6379"
@@ -73,13 +74,13 @@ var (
 )
 
 // Util method to prepare files for rendering based on templates
-func transform(inputPath string, jobId string) (bytes.Buffer, error) {
+func transform(inputPath string, jobID string) (bytes.Buffer, error) {
 	var transformed bytes.Buffer
 	tmpl, err := template.ParseFiles(inputPath)
 	if err != nil {
 		return transformed, err
 	}
-	err = tmpl.Execute(&transformed, jobId)
+	err = tmpl.Execute(&transformed, jobID)
 	if err != nil {
 		return transformed, err
 	}
@@ -98,7 +99,6 @@ func upload(outBytes []byte, outputPath string, mimeType string, client *minio.C
 		minio.PutObjectOptions{ContentType: mimeType},
 	)
 	if err != nil {
-		fmt.Println(err)
 		return err
 	}
 	return nil
@@ -126,18 +126,18 @@ func addLabel(img *image.NRGBA, x, y int, label string) error {
 func (server) StartJob(ctx context.Context, req *pb.StartJobRequest) (*pb.StartJobResponse, error) {
 	redisContext := context.Background()
 	// Retrieive the next job ID from Redis
-	jobId, err := redisClient.Incr(redisContext, "gifjob_counter").Result()
+	jobID, err := redisClient.Incr(redisContext, "gifjob_counter").Result()
 	if err != nil {
 		return nil, err
 	}
-	jobIdStr := strconv.FormatInt(jobId, 10)
+	jobIDStr := strconv.FormatInt(jobID, 10)
 
 	// Create a new RenderJob queue for that job
 	job := renderJob{
 		Status: pb.GetJobResponse_PENDING,
 	}
 	payload, _ := json.Marshal(job)
-	err = redisClient.Set(redisContext, "job_gifjob_"+jobIdStr, payload, 0).Err()
+	err = redisClient.Set(redisContext, "job_gifjob_"+jobIDStr, payload, 0).Err()
 	if err != nil {
 		return nil, err
 	}
@@ -177,29 +177,27 @@ func (server) StartJob(ctx context.Context, req *pb.StartJobRequest) (*pb.StartJ
 	switch req.ProductToPlug {
 	case pb.Product_GRPC:
 		productString = "grpc"
-		break
 	case pb.Product_KUBERNETES:
 		productString = "k8s"
-		break
 	default:
 		productString = "gopher"
 	}
 
 	// Generate the assets needed to render the frame, and upload them to minio
-	t, err := transform(scenePath+"/"+productString+".obj.tmpl", jobIdStr)
+	t, err := transform(scenePath+"/"+productString+".obj.tmpl", jobIDStr)
 	if err != nil {
 		return nil, err
 	}
-	err = upload(t.Bytes(), "job_"+jobIdStr+".obj", "binary/octet-stream", minioClient, ctx)
+	err = upload(t.Bytes(), "job_"+jobIDStr+".obj", "binary/octet-stream", minioClient, ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	t, err = transform(scenePath+"/"+productString+".mtl.tmpl", jobIdStr)
+	t, err = transform(scenePath+"/"+productString+".mtl.tmpl", jobIDStr)
 	if err != nil {
 		return nil, err
 	}
-	err = upload(t.Bytes(), "job_"+jobIdStr+".mtl", "binary/octet-stream", minioClient, ctx)
+	err = upload(t.Bytes(), "job_"+jobIDStr+".mtl", "binary/octet-stream", minioClient, ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -216,13 +214,16 @@ func (server) StartJob(ctx context.Context, req *pb.StartJobRequest) (*pb.StartJ
 	addLabel(badgeImg.(*image.NRGBA), 90, 120, req.Name)
 	buf := new(bytes.Buffer)
 	err = png.Encode(buf, badgeImg)
-	err = upload(buf.Bytes(), "job_"+jobIdStr+"_badge.png", "image/png", minioClient, ctx)
+	if err != nil {
+		return nil, err
+	}
+	err = upload(buf.Bytes(), "job_"+jobIDStr+"_badge.png", "image/png", minioClient, ctx)
 	if err != nil {
 		return nil, err
 	}
 
 	// Add tasks to the GifJob queue for each frame to render
-	var taskId int64
+	var taskID int64
 	for i := 0; i < 15; i++ {
 		// Set up render request for each frame
 		task := renderTask{
@@ -232,29 +233,29 @@ func (server) StartJob(ctx context.Context, req *pb.StartJobRequest) (*pb.StartJ
 		}
 
 		// Get new task id
-		taskId, err = redisClient.Incr(redisContext, "counter_queued_gifjob_"+jobIdStr).Result()
+		taskID, err = redisClient.Incr(redisContext, "counter_queued_gifjob_"+jobIDStr).Result()
 		if err != nil {
 			return nil, err
 		}
-		taskIdStr := strconv.FormatInt(taskId, 10)
+		taskIDStr := strconv.FormatInt(taskID, 10)
 
 		payload, err = json.Marshal(task)
 		if err != nil {
 			return nil, err
 		}
-		err = redisClient.Set(redisContext, "task_gifjob_"+jobIdStr+"_"+taskIdStr, payload, 0).Err()
+		err = redisClient.Set(redisContext, "task_gifjob_"+jobIDStr+"_"+taskIDStr, payload, 0).Err()
 		if err != nil {
 			return nil, err
 		}
-		err = redisClient.LPush(redisContext, "gifjob_queued", jobIdStr+"_"+taskIdStr).Err()
+		err = redisClient.LPush(redisContext, "gifjob_queued", jobIDStr+"_"+taskIDStr).Err()
 		if err != nil {
 			return nil, err
 		}
-		fmt.Fprintf(os.Stdout, "enqueued gifjob_%s_%s %s\n", jobIdStr, taskIdStr, payload)
+		fmt.Fprintf(os.Stdout, "enqueued gifjob_%s_%s %s\n", jobIDStr, taskIDStr, payload)
 	}
 
 	// Return job ID
-	response := pb.StartJobResponse{JobId: jobIdStr}
+	response := pb.StartJobResponse{JobId: jobIDStr}
 
 	return &response, nil
 }
@@ -274,10 +275,10 @@ func leaseNextTask() error {
 
 	// extract task ID and job ID
 	strs := strings.Split(jobString, "_")
-	jobIdStr := strs[0]
-	taskIdStr := strs[1]
+	jobIDStr := strs[0]
+	taskIDStr := strs[1]
 
-	payload, err := redisClient.Get(redisContext, "task_gifjob_"+jobIdStr+"_"+taskIdStr).Result()
+	payload, err := redisClient.Get(redisContext, "task_gifjob_"+jobIDStr+"_"+taskIDStr).Result()
 	if err != nil {
 		return err
 	}
@@ -290,11 +291,11 @@ func leaseNextTask() error {
 	}
 
 	req := &pb.RenderRequest{
-		GcsOutputBase: "jobnum" + jobIdStr, // this is the prefix for all/most objects of this job
-		ObjPath:       "job_" + jobIdStr + ".obj",
+		GcsOutputBase: "jobnum" + jobIDStr, // this is the prefix for all/most objects of this job
+		ObjPath:       "job_" + jobIDStr + ".obj",
 		Assets: []string{
-			"job_" + jobIdStr + ".mtl",
-			"job_" + jobIdStr + "_badge.png",
+			"job_" + jobIDStr + ".mtl",
+			"job_" + jobIDStr + "_badge.png",
 			"k8s.png",
 			"grpc.png",
 		},
@@ -317,18 +318,18 @@ func leaseNextTask() error {
 	fmt.Fprintf(os.Stdout, "deleted gifjob_%s\n", jobString)
 
 	// increment "gifjob_"+jobIdStr+"_completed_counter"
-	completedTaskCount, err := redisClient.Incr(redisContext, "counter_completed_gifjob_"+jobIdStr).Result()
+	completedTaskCount, err := redisClient.Incr(redisContext, "counter_completed_gifjob_"+jobIDStr).Result()
 	if err != nil {
 		return err
 	}
-	queueLength, err := redisClient.Get(redisContext, "counter_queued_gifjob_"+jobIdStr).Result()
+	queueLength, err := redisClient.Get(redisContext, "counter_queued_gifjob_"+jobIDStr).Result()
 	if err != nil {
 		return err
 	}
 
 	// if qeuedcounter = completedcounter, mark job as done
 	queueLengthInt, _ := strconv.ParseInt(queueLength, 10, 64)
-	fmt.Fprintf(os.Stdout, "job_gifjob_%s : %d of %d tasks done\n", jobIdStr, completedTaskCount, queueLengthInt)
+	fmt.Fprintf(os.Stdout, "job_gifjob_%s : %d of %d tasks done\n", jobIDStr, completedTaskCount, queueLengthInt)
 	if completedTaskCount == queueLengthInt {
 		finalImagePath, err := compileGifs(req.GcsOutputBase, context.Background())
 		if err != nil {
@@ -341,11 +342,11 @@ func leaseNextTask() error {
 			FinalImagePath: finalImagePath,
 		}
 		payloadBytes, _ := json.Marshal(job)
-		err = redisClient.Set(redisContext, "job_gifjob_"+jobIdStr, payloadBytes, 0).Err()
+		err = redisClient.Set(redisContext, "job_gifjob_"+jobIDStr, payloadBytes, 0).Err()
 		if err != nil {
 			return err
 		}
-		fmt.Fprintf(os.Stdout, "completed job_gifjob_%s : %d tasks\n", jobIdStr, completedTaskCount)
+		fmt.Fprintf(os.Stdout, "completed job_gifjob_%s : %d tasks\n", jobIDStr, completedTaskCount)
 	}
 
 	return nil
@@ -389,7 +390,7 @@ func compileGifs(prefix string, tCtx context.Context) (string, error) {
 	defer cancel()
 
 	objectCh := minioClient.ListObjects(ctx, minioBucket, minio.ListObjectsOptions{Prefix: prefix})
-	var orderedObjects []minio.ObjectInfo
+	var orderedObjects []minio.ObjectInfo //nolint:prealloc
 	for minioObj := range objectCh {
 		if minioObj.Err != nil {
 			return "", minioObj.Err
@@ -401,7 +402,6 @@ func compileGifs(prefix string, tCtx context.Context) (string, error) {
 	for _, frameObj := range orderedObjects {
 		object, err := minioClient.GetObject(ctx, minioBucket, frameObj.Key, minio.GetObjectOptions{})
 		if err != nil {
-			fmt.Println(err)
 			return "", err
 		}
 		framePng, err := png.Decode(object)
@@ -427,7 +427,13 @@ func compileGifs(prefix string, tCtx context.Context) (string, error) {
 
 	gifBuffer := new(bytes.Buffer)
 	err = gif.EncodeAll(gifBuffer, finalGif)
+	if err != nil {
+		return "", err
+	}
 	err = upload(gifBuffer.Bytes(), finalObjName, "image/gif", minioClient, ctx)
+	if err != nil {
+		return "", err
+	}
 	presignedURL, err := minioClient.PresignedGetObject(ctx, minioBucket, finalObjName, time.Second*24*3600, nil)
 	if err != nil {
 		return "", err
@@ -436,10 +442,10 @@ func compileGifs(prefix string, tCtx context.Context) (string, error) {
 }
 
 // Return status of job and url of image
-func (server) GetJob(ctx context.Context, req *pb.GetJobRequest) (*pb.GetJobResponse, error) {
+func (server) GetJob(_ context.Context, req *pb.GetJobRequest) (*pb.GetJobResponse, error) {
 	var job renderJob
 	redisContext := context.Background()
-	statusStr, err := redisClient.Get(redisContext, "job_gifjob_"+string(req.JobId)).Result()
+	statusStr, err := redisClient.Get(redisContext, "job_gifjob_"+req.JobId).Result()
 	if err != nil {
 		return nil, err
 	}
@@ -456,10 +462,10 @@ func main() {
 	flag.Parse()
 	port := os.Getenv("GIFCREATOR_PORT")
 	if port == "" {
-		if *workerMode == true {
+		port = "8082"
+		if *workerMode {
 			port = "8081"
 		}
-		port = "8082"
 	}
 	if os.Getenv("REDIS_NAME") != "" {
 		redisName = os.Getenv("REDIS_NAME")
@@ -508,23 +514,23 @@ func main() {
 		DB:       0,  // use default DB
 	})
 
-	if *workerMode == true {
+	if *workerMode {
 		// Worker mode will perpetually poll the queue and lease tasks
 		fmt.Fprintf(os.Stdout, "starting gifcreator in worker mode\n")
 
-		conn, err := grpc.Dial(renderHostAddr, grpc.WithInsecure())
+		conn, err := grpc.Dial(renderHostAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 		if err != nil {
 			// TODO(jessup) Swap these out for proper logging
 			fmt.Fprintf(os.Stderr, "cannot connect to render service %s\n%v", renderHostAddr, err)
 			return
 		}
-		defer conn.Close()
 
 		renderClient = pb.NewRenderClient(conn)
 
 		for {
 			err := leaseNextTask()
 			if err != nil {
+				conn.Close()
 				fmt.Fprintf(os.Stderr, "error working on task: %v\n", err)
 			}
 			time.Sleep(10 * time.Millisecond)
