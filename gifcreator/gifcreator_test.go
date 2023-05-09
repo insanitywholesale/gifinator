@@ -67,6 +67,7 @@ func TestStartJob(t *testing.T) {
 		redisPort = strings.TrimPrefix(redisPort, "tcp://")
 	}
 	redisAddr := redisName + ":" + redisPort
+	t.Log("redisAddr:", redisAddr)
 	redisOpts, err := redis.ParseURL(redisPort) // TODO: fix
 	if err != nil {
 		t.Log(err)
