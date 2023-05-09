@@ -62,11 +62,13 @@ func TestStartJob(t *testing.T) {
 	}
 	t.Log(redisPort)
 
-	redisAddr := redisName + ":" + redisPort
+	redisAddr := "redis:tcp://" + redisName + ":" + redisPort
 	redisOpts, err := redis.ParseURL(redisAddr)
 	if err != nil {
+		t.Log(err)
 		t.Fatal(redisOpts)
 	}
+	t.Log(redisOpts.Addr)
 	redisOpts.Password = ""
 	redisOpts.DB = 0
 

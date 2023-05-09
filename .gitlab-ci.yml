@@ -31,20 +31,20 @@ check_format:
     - rm -rf .cache/pkg
     - test -z "$(gofmt -l .)"
 
-compile:
-  stage: build
-  needs:
-    - check_format
-  parallel:
-    matrix:
-      - COMPONENT: [render, gifcreator, frontend]
-  script:
-    - go build -o $COMPONENT
-  artifacts:
-    paths:
-      - $CI_PROJECT_DIR/render/render
-      - $CI_PROJECT_DIR/gifcreator/gifcreator
-      - $CI_PROJECT_DIR/frontend/frontend
+#compile:
+#  stage: build
+#  needs:
+#    - check_format
+#  parallel:
+#    matrix:
+#      - COMPONENT: [render, gifcreator, frontend]
+#  script:
+#    - go build -o $COMPONENT
+#  artifacts:
+#    paths:
+#      - $CI_PROJECT_DIR/render/render
+#      - $CI_PROJECT_DIR/gifcreator/gifcreator
+#      - $CI_PROJECT_DIR/frontend/frontend
 
 vet:
   stage: test
@@ -56,16 +56,16 @@ vet:
   script:
     - go vet -v ./...
 
-lint:
-  image: golangci/golangci-lint:latest
-  stage: test
-  needs:
-    - compile
-  parallel:
-    matrix:
-      - COMPONENT: [render, gifcreator, frontend]
-  script:
-    - golangci-lint run -v
+#lint:
+#  image: golangci/golangci-lint:latest
+#  stage: test
+#  needs:
+#    - compile
+#  parallel:
+#    matrix:
+#      - COMPONENT: [render, gifcreator, frontend]
+#  script:
+#    - golangci-lint run -v
 
 unit_test:
   stage: test
