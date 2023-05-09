@@ -113,7 +113,7 @@ func TestStartJob(t *testing.T) {
 	t.Log("response:", res)
 	t.Log("response id:", res.JobId)
 	
-	srv.Close()
+	srv.Stop()
 }
 
 func TestWorkerMode(t *testing.T) {
