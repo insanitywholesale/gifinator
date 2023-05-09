@@ -68,7 +68,7 @@ func TestStartJob(t *testing.T) {
 		redisAddr = strings.TrimPrefix(redisAddr, "redis:tcp://")
 	}
 	t.Log("redis addr:", redisAddr)
-	redisOpts, err := redis.ParseURL(redisAddr)
+	redisOpts, err := redis.ParseURL(redisPort) // TODO: fix
 	if err != nil {
 		t.Log(err)
 		t.Fatal(redisOpts)
