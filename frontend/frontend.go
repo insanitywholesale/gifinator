@@ -28,6 +28,7 @@ import (
 	"strings"
 
 	pb "gitlab.com/insanitywholesale/gifinator/proto"
+	"google.golang.org/grpc/credentials/insecure"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 )
@@ -64,7 +65,7 @@ func main() {
 
 	gcHostAddr := gifcreatorName + ":" + gifcreatorPort
 
-	conn, err := grpc.Dial(gcHostAddr, grpc.WithInsecure())
+	conn, err := grpc.Dial(gcHostAddr, grpc.WithTransportCredentials(insecure.NewCredentials())
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "cannot connect to gifcreator %s\n%v", gcHostAddr, err)
 		return
@@ -80,7 +81,7 @@ func main() {
 	http.Handle("/static/", http.FileServer(http.FS(staticPath)))
 	log.Println("about to start serving")
 	err = http.ListenAndServe(":"+port, nil)
-	log.Fatal(err)
+	log.Error(err)
 }
 
 func handleForm(w http.ResponseWriter, r *http.Request) {
@@ -123,7 +124,7 @@ func handleForm(w http.ResponseWriter, r *http.Request) {
 			fmt.Fprintf(os.Stderr, "cannot request Gif - %v", err)
 			return
 		}
-		http.Redirect(w, r, "/gif/"+response.JobId, 301)
+		http.Redirect(w, r, "/gif/"+response.JobId, http.StatusMovedPermanently)
 		return
 	}
 	renderForm(w, nil)
@@ -164,22 +165,22 @@ func handleGif(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var bodyHtmlPath string
+	var bodyHTMLPath string
 	gifInfo := responsePageData{
 		ImageID: pathSegments[2],
 	}
 	switch response.Status {
 	case pb.GetJobResponse_PENDING:
-		bodyHtmlPath = filepath.Join(templatePath, "spinner.html")
+		bodyHTMLPath = filepath.Join(templatePath, "spinner.html")
 	case pb.GetJobResponse_DONE:
-		bodyHtmlPath = filepath.Join(templatePath, "gif.html")
+		bodyHTMLPath = filepath.Join(templatePath, "gif.html")
 		gifInfo.ImageURL = response.ImageUrl
 	default:
-		bodyHtmlPath = filepath.Join(templatePath, "error.html")
+		bodyHTMLPath = filepath.Join(templatePath, "error.html")
 	}
 	layoutPath := filepath.Join(templatePath, "layout.html")
 
-	t, err := template.ParseFiles(layoutPath, bodyHtmlPath)
+	t, err := template.ParseFiles(layoutPath, bodyHTMLPath)
 	if err == nil {
 		terr := t.ExecuteTemplate(w, "layout", gifInfo)
 		http.Error(w, terr.Error(), 500)
