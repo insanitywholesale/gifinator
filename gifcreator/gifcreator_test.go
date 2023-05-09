@@ -162,10 +162,10 @@ func TestWorkerMode(t *testing.T) {
 	if err != nil {
 		t.Log("error connecting to renderer at", renderHostAddr, err)
 	}
+	defer conn.Close()
 
 	// create new render client with the above connection
 	renderClient = pb.NewRenderClient(conn)
-	defer conn.Close()
 
 	log.Println("connected to renderer at", renderHostAddr)
 
