@@ -31,7 +31,6 @@ check_format:
     - rm -rf .cache/pkg
     - test -z "$(gofmt -l .)"
 
-#TODO: parallel matrix the compiles
 compile:
   stage: build
   needs:
@@ -72,9 +71,20 @@ unit_test:
   stage: test
   needs:
     - vet
+  variables:
+    MINIO_ROOT_USER: minioaccesskeyid
+    MINIO_ROOT_PASSWORD: miniosecretaccesskey
+    MINIO_NAME: minio
+    REDIS_NAME: redis
   parallel:
     matrix:
       - COMPONENT: [render, gifcreator, frontend]
+  services:
+    - name: redis:latest
+      alias: redis
+    - name: minio/minio:latest
+      alias: minio
+      command: ["server", "/data"]
   script:
     - go test -v ./...
     - go test -v -race ./...
