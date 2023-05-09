@@ -71,15 +71,16 @@ func main() {
 	}
 	defer conn.Close()
 	gcClient = pb.NewGifCreatorClient(conn)
-	fmt.Println("connected to gifcreator")
+	log.Println("connected to gifcreator")
 
 	http.HandleFunc("/", handleForm)
 	http.HandleFunc("/gif/", handleGif)
 	http.HandleFunc("/check/", handleGifStatus)
 	http.HandleFunc("/info", getInfo)
 	http.Handle("/static/", http.FileServer(http.FS(staticPath)))
-	fmt.Println("about to start serving")
-	log.Fatal(http.ListenAndServe(":"+port, nil))
+	log.Println("about to start serving")
+	err := http.ListenAndServe(":"+port, nil)
+	log.Fatal(err)
 }
 
 func handleForm(w http.ResponseWriter, r *http.Request) {
