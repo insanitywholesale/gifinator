@@ -65,6 +65,7 @@ var (
 	workerMode      = flag.Bool("worker", false, "run in worker mode rather than server")
 	redisName       = "localhost"
 	redisPort       = "6379"
+	redisAddr       = redisName + ":" + redisPort
 	minioBucket     string
 	endpoint        string
 	accessKeyID     string
@@ -478,6 +479,9 @@ func main() {
 	if os.Getenv("REDIS_PORT") != "" {
 		redisPort = os.Getenv("REDIS_PORT")
 	}
+	if strings.HasPrefix(redisPort, "tcp://") {
+		redisAddr = strings.TrimPrefix(redisPort, "tcp://")
+	}
 	renderName := os.Getenv("RENDER_NAME")
 	if renderName == "" {
 		redisName = "localhost"
@@ -514,7 +518,7 @@ func main() {
 	}
 
 	redisClient = redis.NewClient(&redis.Options{
-		Addr:     redisName + ":" + redisPort,
+		Addr:     redisAddr,
 		Password: "", // no password set
 		DB:       0,  // use default DB
 	})
