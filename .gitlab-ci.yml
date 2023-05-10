@@ -109,23 +109,22 @@ mod_update_test:
     - go test -v ./...
     - go test -v -race ./...
 
-#TODO: enable after adding docker creds to CI
-#docker_image:
-#  image:
-#    name: jdrouet/docker-with-buildx:20.10.21-0.9.1
-#  stage: release
-#  needs:
-#    - vet
-#    - lint
-#    - unit_test
-#    - mod_update_test
-#  services:
-#    - name: docker:23.0.1-dind
-#      alias: docker
-#  before_script:
-#    - apk add --no-cache tzdata
-#    - docker login -u inherently -p $DOCKER_AUTH_PASSWORD
-#    - docker buildx create --platform ${PLATFORMS} --name testci --use
-#    - docker buildx inspect testci
-#  script:
-#    - docker buildx build --push --platform ${PLATFORMS} -t inherently/gifinator:latest .
+docker_image:
+  image:
+    name: jdrouet/docker-with-buildx:20.10.21-0.9.1
+  stage: release
+  needs:
+    - vet
+    - lint
+    - unit_test
+    - mod_update_test
+  services:
+    - name: docker:23.0.1-dind
+      alias: docker
+  before_script:
+    - apk add --no-cache tzdata
+    - docker login -u inherently -p $DOCKER_AUTH_PASSWORD
+    - docker buildx create --platform ${PLATFORMS} --name testci --use
+    - docker buildx inspect testci
+  script:
+    - docker buildx build --push --platform ${PLATFORMS} -t inherently/gifinator:latest .
