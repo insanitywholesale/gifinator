@@ -122,7 +122,7 @@ docker_image:
     - name: docker:23.0.1-dind
       alias: docker
   before_script:
-    - apk add --no-cache tzdata
+    - apk add --no-cache tzdata git
     - docker login -u inherently -p $DOCKER_AUTH_PASSWORD
     - docker buildx create --platform ${PLATFORMS} --name testci --use
     - docker buildx inspect testci
