@@ -112,7 +112,7 @@ mod_update_test:
 docker_image:
   image:
     name: jdrouet/docker-with-buildx:20.10.21-0.9.1
-  stage: release
+  stage: format
   needs:
     - vet
     - lint
