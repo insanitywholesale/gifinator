@@ -2,7 +2,6 @@ linters:
   #enable-all: true
   enable:
     - asciicheck
-    - depguard
     - errcheck
     - errorlint
     - forbidigo
