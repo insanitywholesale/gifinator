@@ -1,6 +1,6 @@
 # TODO: make better as seen here: https://developpaper.com/configuring-gitlab-ci-for-golang-project/
 # link to original: https://gitlab.com/gitlab-org/gitlab/-/blob/master/lib/gitlab/ci/templates/Go.gitlab-ci.yml
-image: golang:1.20
+image: golang:1.21
 cache:
   - key: module-cache-$CI_COMMIT_REF_SLUG
     paths:
@@ -111,7 +111,7 @@ mod_update_test:
 
 docker_image:
   image:
-    name: jdrouet/docker-with-buildx:20.10.21-0.9.1
+    name: docker:23.0.1-dind
   stage: format
   #needs:
   #  - vet
