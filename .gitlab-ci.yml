@@ -112,12 +112,12 @@ mod_update_test:
 docker_image:
   image:
     name: docker:23.0.1-dind
-  stage: format
-  #needs:
-  #  - vet
-  #  - lint
-  #  - unit_test
-  #  - mod_update_test
+  stage: release
+  needs:
+    - vet
+    - lint
+    - unit_test
+    - mod_update_test
   services:
     - name: docker:23.0.1-dind
       alias: docker
