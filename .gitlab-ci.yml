@@ -61,9 +61,6 @@ lint:
   stage: test
   needs:
     - compile
-  parallel:
-    matrix:
-      - COMPONENT: [render, gifcreator, frontend]
   script:
     - golangci-lint run -v
 

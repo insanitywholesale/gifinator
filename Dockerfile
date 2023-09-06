@@ -24,8 +24,6 @@ RUN go get -v
 RUN go vet -v
 RUN make installwithvars
 
-RUN ls /go/bin
-
 # run stage
 FROM busybox as run
 RUN mkdir /tmp/objcache
