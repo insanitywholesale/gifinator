@@ -46,12 +46,15 @@ The directory structure looks like this:
 └── upstream-README.md
 ```
 
-# components
+# Components
+
 ## `render`
-Renders each frame of the gif and uploads them to minio..
+Renders each frame of the gif and uploads them to minio.
+
 ## `gifcreator`
 Gifcreator is generally responsible for coordinating the process of sending the correct assets to the renderer as well as stitching the rendered frames together to form the final gif.
-At least two instances of the code in this package need to be running at once -- one in server mode and the other in worker mode.
+Two instances of the code in this package need to be running at once -- one in server mode and the other in worker mode.
+
 ### server mode
 Server mode duties:
 
