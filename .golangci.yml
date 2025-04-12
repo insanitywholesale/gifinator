@@ -1,39 +1,69 @@
-linters:
-  #enable-all: true
-  enable:
-    - asciicheck
-    - errcheck
-    - errorlint
-    - forbidigo
-    - gofmt
-    - gofumpt
-    - goheader
-    - goimports
-    - gosec
-    - gocritic
-    - importas
-    - prealloc
-    - revive
-    - misspell
-    - stylecheck
-    - tparallel
-    - unconvert
-    - unparam
-    - unused
-    - whitespace
-linters-settings:
-  depguard:
-    include-go-root: true
-  errcheck:
-    exclude-functions:
-      - (net/http.ResponseWriter).Write
-      - (*net/http.ResponseWriter).Write
-      - (net/http.Server).Serve
-      - (*net/http.Server).Serve
-      - (google.golang.org/grpc.Server).Serve
-      - (*google.golang.org/grpc.Server).Serve
-output:
-  uniq-by-line: false
+version: "2"
 run:
   issues-exit-code: 1
-  timeout: 13m
+linters:
+  disable:
+    - canonicalheader
+    - contextcheck
+    - cyclop
+    - depguard
+    - err113
+    - exhaustruct
+    - funlen
+    - gochecknoglobals
+    - gochecknoinits
+    - gocognit
+    - goconst
+    - gocyclo
+    - godot
+    - godox
+    - interfacebloat
+    - ireturn
+    - lll
+    - maintidx
+    - mirror
+    - mnd
+    - nestif
+    - nilnil
+    - nlreturn
+    - noctx
+    - nonamedreturns
+    - paralleltest
+    - protogetter
+    - tagliatelle
+    - varnamelen
+    - wrapcheck
+    - wsl
+  settings:
+    errcheck:
+      exclude-functions:
+        - (net/http.ResponseWriter).Write
+        - (*net/http.ResponseWriter).Write
+        - (net/http.Server).Serve
+        - (*net/http.Server).Serve
+        - (google.golang.org/grpc.Server).Serve
+        - (*google.golang.org/grpc.Server).Serve
+  exclusions:
+    generated: lax
+    presets:
+      - comments
+      - common-false-positives
+      - legacy
+      - std-error-handling
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
+issues:
+  uniq-by-line: false
+formatters:
+  enable:
+    - gci
+    - gofmt
+    - gofumpt
+  exclusions:
+    generated: lax
+    paths:
+      - third_party$
+      - builtin$
+      - examples$

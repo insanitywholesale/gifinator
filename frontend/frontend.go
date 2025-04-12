@@ -110,7 +110,7 @@ func main() {
 }
 
 func handleForm(w http.ResponseWriter, r *http.Request) {
-	if r.Method == "POST" {
+	if r.Method == http.MethodPost {
 		// Get the form info, verify, and pass on
 		formErrors := []string{}
 		var gifName string
@@ -163,9 +163,9 @@ func renderForm(w http.ResponseWriter, errors []string) {
 	t, err := template.ParseFiles(layoutPath, formPath)
 	if err == nil {
 		terr := t.ExecuteTemplate(w, "layout", errors)
-		http.Error(w, terr.Error(), 500)
+		http.Error(w, terr.Error(), http.StatusInternalServerError)
 	} else {
-		http.Error(w, err.Error(), 500)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }
 
@@ -177,7 +177,7 @@ type responsePageData struct {
 func handleGif(w http.ResponseWriter, r *http.Request) {
 	pathSegments := strings.Split(r.URL.Path, "/")
 	if len(pathSegments) < 2 {
-		http.Error(w, "Can't find the GIF ID", 404)
+		http.Error(w, "Can't find the GIF ID", http.StatusNotFound)
 		return
 	}
 
@@ -208,16 +208,16 @@ func handleGif(w http.ResponseWriter, r *http.Request) {
 	t, err := template.ParseFiles(layoutPath, bodyHTMLPath)
 	if err == nil {
 		terr := t.ExecuteTemplate(w, "layout", gifInfo)
-		http.Error(w, terr.Error(), 500)
+		http.Error(w, terr.Error(), http.StatusInternalServerError)
 	} else {
-		http.Error(w, err.Error(), 500)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }
 
 func handleGifStatus(w http.ResponseWriter, r *http.Request) {
 	pathSegments := strings.Split(r.URL.Path, "/")
 	if len(pathSegments) < 2 {
-		http.Error(w, "Can't find the GIF ID", 404)
+		http.Error(w, "Can't find the GIF ID", http.StatusNotFound)
 		return
 	}
 
@@ -231,12 +231,17 @@ func handleGifStatus(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	jsonReponse, _ := json.Marshal(response)
+	jsonReponse, err := json.Marshal(response)
+	if err != nil {
+		// TODO(jessup) Swap these out for proper logging
+		fmt.Fprintf(os.Stderr, "cannot marshal response - %v", err)
+		return
+	}
 	w.Write(jsonReponse)
 }
 
 func getInfo(w http.ResponseWriter, r *http.Request) {
-	if r.Method == "GET" {
+	if r.Method == http.MethodGet {
 		w.Write([]byte("commitHash: " + commitHash + "\n"))
 		w.Write([]byte("commitDate: " + commitDate + "\n"))
 		return
