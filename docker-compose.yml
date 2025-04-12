@@ -50,6 +50,13 @@ services:
       RENDER_PORT: "8070"
     networks:
       - gifnet
+    depends_on:
+      minio:
+        condition: service_started
+      valkey:
+        condition: service_started
+      render:
+        condition: service_started
 
   gifcreator-worker:
     container_name: gifcreator-worker
@@ -67,6 +74,15 @@ services:
       RENDER_PORT: "8070"
     networks:
       - gifnet
+    depends_on:
+      minio:
+        condition: service_started
+      valkey:
+        condition: service_started
+      render:
+        condition: service_started
+      gifcreator-server:
+        condition: service_started
 
   frontend:
     container_name: frontend
@@ -82,6 +98,11 @@ services:
       GIFCREATOR_PORT: "8081"
     networks:
       - gifnet
+    depends_on:
+      minio:
+        condition: service_started
+      gifcreator-server:
+        condition: service_started
 
 networks:
   gifnet:
