@@ -64,7 +64,7 @@ func main() {
 
 	gcHostAddr := gifcreatorName + ":" + gifcreatorPort
 
-	conn, err := grpc.Dial(gcHostAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	conn, err := grpc.NewClient(gcHostAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "cannot connect to gifcreator %s\n%v", gcHostAddr, err)
 		return
@@ -148,7 +148,7 @@ func handleForm(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/gif/"+response.JobId, http.StatusMovedPermanently)
 		return
 	}
-	renderForm(w, nil)
+	renderForm(w, []string{})
 }
 
 func renderForm(w http.ResponseWriter, errors []string) {
@@ -159,9 +159,12 @@ func renderForm(w http.ResponseWriter, errors []string) {
 	t, err := template.ParseFiles(layoutPath, formPath)
 	if err == nil {
 		terr := t.ExecuteTemplate(w, "layout", errors)
-		http.Error(w, terr.Error(), http.StatusInternalServerError)
+		if terr != nil {
+			http.Error(w, terr.Error(), http.StatusInternalServerError)
+		}
 	} else {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 }
 
@@ -204,7 +207,10 @@ func handleGif(w http.ResponseWriter, r *http.Request) {
 	t, err := template.ParseFiles(layoutPath, bodyHTMLPath)
 	if err == nil {
 		terr := t.ExecuteTemplate(w, "layout", gifInfo)
-		http.Error(w, terr.Error(), http.StatusInternalServerError)
+		if terr != nil {
+			http.Error(w, terr.Error(), http.StatusInternalServerError)
+			return
+		}
 	} else {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}

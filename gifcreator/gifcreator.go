@@ -478,6 +478,7 @@ func main() {
 	if os.Getenv("REDIS_PORT") != "" {
 		redisPort = os.Getenv("REDIS_PORT")
 	}
+	redisAddr = redisName + ":" + redisPort
 	if strings.HasPrefix(redisPort, "tcp://") {
 		redisAddr = strings.TrimPrefix(redisPort, "tcp://")
 	}
@@ -526,7 +527,7 @@ func main() {
 		// Worker mode will perpetually poll the queue and lease tasks
 		fmt.Fprintf(os.Stdout, "starting gifcreator in worker mode\n")
 
-		conn, err := grpc.Dial(renderHostAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+		conn, err := grpc.NewClient(renderHostAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 		if err != nil {
 			// TODO(jessup) Swap these out for proper logging
 			fmt.Fprintf(os.Stderr, "cannot connect to render service %s\n%v", renderHostAddr, err)
@@ -538,10 +539,9 @@ func main() {
 		for {
 			err := leaseNextTask()
 			if err != nil {
-				conn.Close()
 				fmt.Fprintf(os.Stderr, "error working on task: %v\n", err)
 			}
-			time.Sleep(10 * time.Millisecond)
+			time.Sleep(1000 * time.Millisecond)
 			// TODO(jessup) add timed sweeps for crashed jobs that never finished processing
 		}
 	} else {

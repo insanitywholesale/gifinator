@@ -138,7 +138,6 @@ func (server) RenderFrame(ctx context.Context, req *pb.RenderRequest) (*pb.Rende
 }
 
 func main() {
-	useSSL := false
 	minioName := os.Getenv("MINIO_NAME")
 	if minioName == "" {
 		minioName = "localhost"
@@ -160,8 +159,9 @@ func main() {
 	if minioBucket == "" {
 		minioBucket = "gifbucket"
 	}
+	useSSL := false
 
-	// Initialize minio client object.
+	// initialize minio client
 	mC, err := minio.New(endpoint, &minio.Options{
 		Creds:  credentials.NewStaticV4(accessKeyID, secretAccessKey, ""),
 		Secure: useSSL,
@@ -178,9 +178,10 @@ func main() {
 		log.Fatalln("minio connection failed:", err)
 	}
 
+	// Create the bucket if it doesn't exist
 	err = minioClient.MakeBucket(context.Background(), minioBucket, minio.MakeBucketOptions{Region: "us-east-1"})
 	if err != nil {
-		// Check to see if we already own this bucket
+		// Check to see if the error is because the bucket already exists
 		exists, errBucketExists := minioClient.BucketExists(context.Background(), minioBucket)
 		if errBucketExists == nil && exists {
 			log.Printf("we already own %s\n", minioBucket)

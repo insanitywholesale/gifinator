@@ -13,9 +13,9 @@
 # limitations under the License.
 
 all:
-	go build -o frontend/frontend ./frontend
-	go build -o gifcreator/gifcreator ./gifcreator
-	go build -o render/render ./render
+	cd gifcreator && go build && cd ..
+	cd render && go build && cd ..
+	cd frontend && go build && cd ..
 
 proto:
 	protoc -I ./proto/ \
