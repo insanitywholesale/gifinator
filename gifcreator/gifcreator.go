@@ -118,7 +118,7 @@ func uploadSceneFiles(client *minio.Client) {
 				return fmt.Errorf("failed to upload %s: %w", path, err)
 			}
 
-			fmt.Printf("uploaded scene file: %s\n", uploadInfo)
+			fmt.Println("uploaded "+objectName+" file with info: ", uploadInfo)
 		}
 		return nil
 	})
