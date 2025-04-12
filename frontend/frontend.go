@@ -42,9 +42,6 @@ var (
 	staticPath embed.FS
 	// gifcreator client
 	gcClient pb.GifCreatorClient
-	// commit info
-	commitHash string
-	commitDate string
 )
 
 func main() {
@@ -81,7 +78,6 @@ func main() {
 	m.HandleFunc("/", handleForm)
 	m.HandleFunc("/gif/", handleGif)
 	m.HandleFunc("/check/", handleGifStatus)
-	m.HandleFunc("/info", getInfo)
 	m.Handle("/static/", http.FileServer(http.FS(staticPath)))
 
 	// Create HTTP server with timeouts
@@ -238,12 +234,4 @@ func handleGifStatus(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.Write(jsonReponse)
-}
-
-func getInfo(w http.ResponseWriter, r *http.Request) {
-	if r.Method == http.MethodGet {
-		w.Write([]byte("commitHash: " + commitHash + "\n"))
-		w.Write([]byte("commitDate: " + commitDate + "\n"))
-		return
-	}
 }
