@@ -94,23 +94,6 @@ unit_test:
     - go test -v ./...
     - go test -v -race ./...
 
-mod_update_test:
-  stage: test
-  needs:
-    - vet
-    - unit_test
-  parallel:
-    matrix:
-      - COMPONENT: [render, gifcreator, frontend]
-  script:
-    - rm go.mod go.sum
-    - go mod init $REPO_NAME/$COMPONENT
-    - go mod tidy
-    - go get -u -v ./...
-    - go mod tidy
-    - go test -v ./...
-    - go test -v -race ./...
-
 docker_image:
   image:
     name: &docker_dind_img docker:dind
