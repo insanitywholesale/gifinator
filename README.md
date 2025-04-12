@@ -5,56 +5,19 @@ look at TODO.md for what's left to be done.
 look at ARCHITECTURE.md for how the code is structured.
 
 # running (for development)
-the following should be run in the order they are listed and each one in a different terminal
+the following is what I do for development, you might hate it
 
-## docker
-this is the least painful way to develop but still sub-optimal
+## docker compose
+run `make all && docker compose build --no-cache && docker compose up --force-recreate --remove-orphans`
 
-### configure name resolution
-add the following in `/etc/hosts`
-```
-127.0.0.1   minio
-127.0.1.1   minio
-```
-
-### build local docker image
-run `docker build -t giftest .` and replace the value of `IMG` in the `rundocker.sh` script with `giftest`
-
-### start containers
-run `scripts/rundocker.sh` from the root of the repo to start all the required containers
-
-### create bucket and load assets
-go to `http://localhost:9001` and log in using the credentials `minioaccesskeyid` and `miniosecretaccesskey` then create a bucket named `gifbucket` and load all the assets in `gifcreator/scene` to it
-
-### visit web frontend
-access http://localhost:8090 using a web browser, fill in the text, select one of the 3 options, click `Create` and wait
-
-### stop all containers
-run `scripts/stopdocker.sh`
-
-## manually
-this is kind of a pain and there are plans to improve it
-
-### redis (port 6379) and minio (port 9000)
-from the root of the repo, run `scripts/rundeps.sh`
-
-### render (port 8080)
-this one is pretty simple, use `go run render.go`
-
-### gifcreator (worker port 8081, server port 8082)
-go into its directory and run `../scripts/rungifcreator.sh`
-
-### frontend (port 8090)
-also pretty simple, from inside its directory run `../scripts/runfront.sh`
-
-### create bucket and load assets
-go to `http://localhost:9001` and log in using the credentials `minioaccesskeyid` and `miniosecretaccesskey` then create a bucket named `gifbucket` and load all the assets in `gifcreator/scene` to it
+## create bucket and load assets
+go to `http://localhost:9001` and log in using the credentials `minioaccesskeyid` and `miniosecretaccesskey` then create a bucket named `gifbucket` if it doesn't exist already and load all the assets in `gifcreator/scene` to it
 
 ## visit web page
 access http://localhost:8090 using a web browser, fill in the text, select one of the 3 options, click `Create` and wait
 
 # running (for production)
-there are kubernetes manifests for it in [here in my infra repository](https://gitlab.com/insanitywholesale/infra/-/tree/master/kube/manifests/gifinator)
+you are not going to run this in production, let's be real
 
 # documentation
 env vars for each service are listed below

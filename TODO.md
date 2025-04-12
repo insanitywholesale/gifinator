@@ -1,9 +1,7 @@
-- change tests to set config vars through env instead of hardcode
-- move to embed.FS for bundled files both in frontend and gifcreator
 - upload scene files to minio bucket on first run if they don't exist
-- finish ARCHITECTURE.md
+- move to embed.FS for bundled files both in frontend and gifcreator
 - add better comments in code
-- add back tracing (opentracing)
 - add proper logging
-- add git submodule for k8s manifests
-- add `docker-compose.yml` for testing
+- change tests to set config vars through env instead of hardcode
+- add back tracing (opentracing)
+- finish ARCHITECTURE.md
