@@ -7,11 +7,15 @@ look at ARCHITECTURE.md for how the code is structured.
 # running (for development)
 the following is what I do for development, you might hate it
 
-## docker compose
-run `make all && docker compose build --no-cache && docker compose up --force-recreate --remove-orphans`
+## configure name resolution
+add the following in `/etc/hosts`
+```
+127.0.0.1   minio
+127.0.1.1   minio
+```
 
-## create bucket and load assets
-go to `http://localhost:9001` and log in using the credentials `minioaccesskeyid` and `miniosecretaccesskey` then create a bucket named `gifbucket` if it doesn't exist already and load all the assets in `gifcreator/scene` to it
+## compile and docker compose
+run `make all && docker compose build --no-cache && docker compose up --force-recreate --remove-orphans`
 
 ## visit web page
 access http://localhost:8090 using a web browser, fill in the text, select one of the 3 options, click `Create` and wait
