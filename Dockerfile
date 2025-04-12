@@ -1,31 +1,4 @@
-# build stage
-FROM --platform=$BUILDPLATFORM golang:1.21 as build
-
-ENV CGO_ENABLED 0
-ENV GOOS linux
-ENV GOARCH amd64
-ENV GO111MODULE on
-
-WORKDIR /go/src/gifinator
-COPY . .
-
-WORKDIR /go/src/gifinator/render
-RUN go get
-RUN go vet
-RUN go install
-
-WORKDIR /go/src/gifinator/gifcreator
-RUN go get
-RUN go vet
-RUN go install
-
-WORKDIR /go/src/gifinator/frontend
-RUN go get
-RUN go vet
-RUN make installwithvars
-
-# run stage
-FROM --platform=$BUILDPLATFORM busybox as run
+FROM --platform=$BUILDPLATFORM busybox AS run
 
 RUN mkdir /tmp/objcache
 RUN mkdir /tmp/scene
@@ -33,8 +6,8 @@ RUN mkdir /tmp/scene
 COPY ./gifcreator/scene /tmp/scene
 COPY ./frontend/templates /templates
 
-COPY --from=build /go/bin/render /render
-COPY --from=build /go/bin/gifcreator /gifcreator
-COPY --from=build /go/bin/frontend /frontend
+COPY ./render/render /render
+COPY ./gifcreator/gifcreator /gifcreator
+COPY ./frontend/frontend /frontend
 
 ENV FRONTEND_TEMPLATES_DIR=/templates

@@ -42,9 +42,9 @@ compile:
     - go build -o $COMPONENT
   artifacts:
     paths:
-      - $CI_PROJECT_DIR/render/render
-      - $CI_PROJECT_DIR/gifcreator/gifcreator
-      - $CI_PROJECT_DIR/frontend/frontend
+      - render/render
+      - gifcreator/gifcreator
+      - frontend/frontend
 
 vet:
   stage: test
@@ -116,10 +116,8 @@ docker_image:
     name: &docker_dind_img docker:dind
   stage: release
   needs:
-    - vet
+    - compile
     - lint
-    - unit_test
-    - mod_update_test
   services:
     - name: *docker_dind_img
       alias: docker
