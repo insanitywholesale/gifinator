@@ -25,13 +25,6 @@ proto:
 	--go-grpc_opt=paths=source_relative \
 	proto/*.proto
 
-# from upstream
-#
-#proto: proto/gifcreator.pb.go proto/render.pb.go
-#
-#proto/gifcreator.pb.go proto/render.pb.go: proto/gifcreator.proto proto/render.proto
-#	protoc $^ --go_out=plugins=grpc:.
-
 clean:
 	rm -f gifcreator/gifcreator render/render frontend/frontend
 
