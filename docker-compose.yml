@@ -27,9 +27,9 @@ services:
       dockerfile: Dockerfile
     command: /render
     ports:
-      - "8085:8085"
+      - "8070:8070"
     environment:
-      RENDER_PORT: "8085"
+      RENDER_PORT: "8070"
       MINIO_NAME: "minio"
     networks:
       - gifnet
@@ -41,13 +41,13 @@ services:
       dockerfile: Dockerfile
     command: /gifcreator
     ports:
-      - "8082:8082"
+      - "8081:8081"
     environment:
       MINIO_NAME: minio
       REDIS_NAME: valkey
       REDIS_PORT: "6379"
       RENDER_NAME: render
-      RENDER_PORT: "8085"
+      RENDER_PORT: "8070"
     networks:
       - gifnet
 
@@ -58,13 +58,13 @@ services:
       dockerfile: Dockerfile
     command: /gifcreator -worker
     ports:
-      - "8081:8081"
+      - "8082:8082"
     environment:
       MINIO_NAME: minio
       REDIS_NAME: valkey
       REDIS_PORT: "6379"
       RENDER_NAME: render
-      RENDER_PORT: "8085"
+      RENDER_PORT: "8070"
     networks:
       - gifnet
 
@@ -79,7 +79,7 @@ services:
     environment:
       FRONTEND_PORT: "8090"
       GIFCREATOR_NAME: "gifcreator-server"
-      GIFCREATOR_PORT: "8082"
+      GIFCREATOR_PORT: "8081"
     networks:
       - gifnet
 

@@ -194,7 +194,7 @@ func main() {
 
 	servingPort := os.Getenv("RENDER_PORT")
 	if servingPort == "" {
-		servingPort = "8080"
+		servingPort = "8070"
 	}
 	i, err := strconv.Atoi(servingPort)
 	if (err != nil) || (i < 1) {

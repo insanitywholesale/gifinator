@@ -467,9 +467,9 @@ func main() {
 	flag.Parse()
 	port := os.Getenv("GIFCREATOR_PORT")
 	if port == "" {
-		port = "8082"
+		port = "8081"
 		if *workerMode {
-			port = "8081"
+			port = "8082"
 		}
 	}
 	if os.Getenv("REDIS_NAME") != "" {
@@ -488,7 +488,7 @@ func main() {
 	}
 	renderPort := os.Getenv("RENDER_PORT")
 	if renderPort == "" {
-		redisPort = "8080"
+		redisPort = "8070"
 	}
 	renderHostAddr := renderName + ":" + renderPort
 	scenePath = os.Getenv("SCENE_PATH")

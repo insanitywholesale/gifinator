@@ -31,7 +31,7 @@ see [official docs](https://github.com/minio/minio/tree/9171d6ef651a852b48f39f82
 ## render
 | Variable       | Description                  | Default Value        |
 |----------------|------------------------------|----------------------|
-| `RENDER_PORT`  | port the service will run at | 8080                 |
+| `RENDER_PORT`  | port the service will run at | 8070                 |
 | `MINIO_NAME`   | minio server domain name     | localhost            |
 | `MINIO_PORT`   | minio server port number     | 9000                 |
 | `MINIO_BUCKET` | minio bucket to be used      | gifbucket            |
@@ -41,10 +41,10 @@ see [official docs](https://github.com/minio/minio/tree/9171d6ef651a852b48f39f82
 ## gifcreator (server mode)
 | Variable          | Description                         | Default Value        |
 |-------------------|-------------------------------------|----------------------|
-| `GIFCREATOR_PORT` | port the service will run at        | 8082                 |
+| `GIFCREATOR_PORT` | port the service will run at        | 8081                 |
 | `SCENE_PATH`      | path to find files for gif creation | /scene               |
 | `RENDER_NAME`     | renderer domain name                | localhost            |
-| `RENDER_PORT`     | renderer port number                | 8080                 |
+| `RENDER_PORT`     | renderer port number                | 8070                 |
 | `REDIS_NAME`      | redis server domain name            | localhost            |
 | `REDIS_PORT`      | redis server port number            | 6379                 |
 | `MINIO_NAME`      | minio server domain name            | localhost            |
@@ -56,10 +56,10 @@ see [official docs](https://github.com/minio/minio/tree/9171d6ef651a852b48f39f82
 ## gifcreator (worker mode)
 | Variable          | Description                         | Default Value        |
 |-------------------|-------------------------------------|----------------------|
-| `GIFCREATOR_PORT` | port the service will run at        | 8081                 |
+| `GIFCREATOR_PORT` | port the service will run at        | 8082                 |
 | `SCENE_PATH`      | path to find files for gif creation | /tmp/scene           |
 | `RENDER_NAME`     | renderer domain name                | localhost            |
-| `RENDER_PORT`     | renderer port number                | 8080                 |
+| `RENDER_PORT`     | renderer port number                | 8070                 |
 | `REDIS_NAME`      | redis server domain name            | localhost            |
 | `REDIS_PORT`      | redis server port number            | 6379                 |
 | `MINIO_NAME`      | minio server domain name            | localhost            |
@@ -74,7 +74,7 @@ see [official docs](https://github.com/minio/minio/tree/9171d6ef651a852b48f39f82
 | `FRONTEND_PORT`          | port the service will run at  | 8090
 | `FRONTEND_TEMPLATES_DIR` | directory for html templates  | /templates
 | `GIFCREATOR_NAME`        | gifcreator server domain name | localhost
-| `GIFCREATOR_PORT`        | gifcreator server port number | 8082
+| `GIFCREATOR_PORT`        | gifcreator server port number | 8081
 
 # legal stuff
 the original is [here](https://github.com/GoogleCloudPlatform/gifinator) and its license and legal stuff apply, I'm not trying to steal anything
