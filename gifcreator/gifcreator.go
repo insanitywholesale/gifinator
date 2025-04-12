@@ -307,7 +307,6 @@ func leaseNextTask() error {
 	}
 
 	_, err = renderClient.RenderFrame(context.Background(), req)
-
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "error requesting frame - %v\n", err)
 		return err
