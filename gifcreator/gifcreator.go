@@ -28,6 +28,7 @@ import (
 	"log"
 	"net"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"text/template"
@@ -87,6 +88,45 @@ func transform(inputPath string, jobID string) (bytes.Buffer, error) {
 	return transformed, nil
 }
 
+func uploadSceneFiles(client *minio.Client) {
+	// Walk through the directory and find the relevant scene files
+	err := filepath.Walk(scenePath, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		if info.IsDir() {
+			return nil
+		}
+
+		ext := strings.ToLower(filepath.Ext(info.Name()))
+		if ext == ".png" || ext == ".tmpl" {
+			objectName := filepath.Base(path)
+
+			// Set appropriate content-type
+			contentType := "application/octet-stream"
+			if ext == ".png" {
+				contentType = "image/png"
+			} else if ext == ".tmpl" {
+				contentType = "text/plain"
+			}
+
+			// Upload the file with the correct content-type
+			uploadInfo, err := client.FPutObject(context.Background(), minioBucket, objectName, path, minio.PutObjectOptions{
+				ContentType: contentType,
+			})
+			if err != nil {
+				return fmt.Errorf("failed to upload %s: %w", path, err)
+			}
+
+			fmt.Printf("uploaded scene file: %s\n", uploadInfo)
+		}
+		return nil
+	})
+	if err != nil {
+		log.Fatalf("error walking the scenepath: %v\n", err)
+	}
+}
+
 // Utility function to upload something to minio
 func upload(outBytes []byte, outputPath string, mimeType string, client *minio.Client, ctx context.Context) error { //nolint:revive
 	objName := outputPath
@@ -102,6 +142,39 @@ func upload(outBytes []byte, outputPath string, mimeType string, client *minio.C
 		return err
 	}
 	return nil
+}
+
+func initializeMinio() {
+	// initialize minio client
+	minioClient, err := minio.New(endpoint, &minio.Options{
+		Creds:  credentials.NewStaticV4(accessKeyID, secretAccessKey, ""),
+		Secure: useSSL,
+	})
+	if err != nil {
+		log.Fatalln("mreating client failed:", err)
+	}
+
+	// There is no Ping method so we use ListBuckets instead
+	_, err = minioClient.ListBuckets(context.Background())
+	if err != nil {
+		log.Fatalln("minio connection failed:", err)
+	}
+	// Create the bucket if it doesn't exist
+	err = minioClient.MakeBucket(context.Background(), minioBucket, minio.MakeBucketOptions{Region: "us-east-1"})
+	if err != nil {
+		// Check to see if the error is because the bucket already exists
+		exists, errBucketExists := minioClient.BucketExists(context.Background(), minioBucket)
+		if errBucketExists == nil && exists {
+			log.Printf("we already own %s\n", minioBucket)
+		} else {
+			log.Fatalln("making bucket failed:", err)
+		}
+	} else {
+		log.Println("successfully created", minioBucket)
+	}
+
+	// Load in the scene files
+	uploadSceneFiles(minioClient)
 }
 
 // Add the text given to the badge image
@@ -156,20 +229,6 @@ func (server) StartJob(ctx context.Context, req *pb.StartJobRequest) (*pb.StartJ
 	_, err = minioClient.ListBuckets(context.Background())
 	if err != nil {
 		log.Fatalln("minio connection failed:", err)
-	}
-
-	// Create bucket if not exists
-	err = minioClient.MakeBucket(context.Background(), minioBucket, minio.MakeBucketOptions{Region: "us-east-1"})
-	if err != nil {
-		// Check to see if we already own this bucket
-		exists, errBucketExists := minioClient.BucketExists(context.Background(), minioBucket)
-		if errBucketExists == nil && exists {
-			log.Println("we already own", minioBucket)
-		} else {
-			log.Fatalln("making bucket failed:", err)
-		}
-	} else {
-		log.Println("successfully created", minioBucket)
 	}
 
 	// Set what mascot will be used
@@ -358,6 +417,7 @@ func leaseNextTask() error {
 // stitch them together into an animated GIF, store that in minio and
 // return the path of the final image
 func compileGifs(prefix string, tCtx context.Context) (string, error) { //nolint:revive
+	// Initialize minio client in here
 	minioClient, err := minio.New(endpoint, &minio.Options{
 		Creds:  credentials.NewStaticV4(accessKeyID, secretAccessKey, ""),
 		Secure: useSSL,
@@ -373,26 +433,12 @@ func compileGifs(prefix string, tCtx context.Context) (string, error) { //nolint
 		log.Fatalln("minio connection failed:", err)
 	}
 
-	// Create bucket if not exists
-	err = minioClient.MakeBucket(context.Background(), minioBucket, minio.MakeBucketOptions{Region: "us-east-1"})
-	if err != nil {
-		// Check to see if we already own this bucket
-		exists, errBucketExists := minioClient.BucketExists(context.Background(), minioBucket)
-		if errBucketExists == nil && exists {
-			log.Println("we already own", minioBucket)
-		} else {
-			log.Fatalln("making bucket failed:", err)
-		}
-	} else {
-		log.Println("successfully created", minioBucket)
-	}
-
+	// Make the context cancellable
 	ctx, cancel := context.WithCancel(tCtx)
-
 	defer cancel()
 
 	objectCh := minioClient.ListObjects(ctx, minioBucket, minio.ListObjectsOptions{Prefix: prefix})
-	var orderedObjects []minio.ObjectInfo //nolint:prealloc
+	var orderedObjects []minio.ObjectInfo
 	for minioObj := range objectCh {
 		if minioObj.Err != nil {
 			return "", minioObj.Err
@@ -545,6 +591,9 @@ func main() {
 			// TODO(jessup) add timed sweeps for crashed jobs that never finished processing
 		}
 	} else {
+		// Create minio bucket and load scene files
+		initializeMinio()
+
 		// Server mode will act as a gRPC server
 		fmt.Fprintf(os.Stdout, "starting gifcreator in server mode\n")
 		l, err := net.Listen("tcp", ":"+port)
