@@ -1,0 +1,6 @@
+apiVersion: v2
+name: gifinator
+description: microservices gif creation
+type: application
+version: 0.1.0
+appVersion: "0.99.0"
