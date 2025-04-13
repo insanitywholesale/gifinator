@@ -1,0 +1,154 @@
+common:
+  image: &image
+    repository: registry.gitlab.com/insanitywholesale/gifinator
+    pullPolicy: IfNotPresent
+    tag: "latest"
+
+render:
+  image: *image
+
+  replicaCount: 1
+  autoscaling:
+    enabled: false
+    minReplicas: 1
+    maxReplicas: 100
+    targetCPUUtilizationPercentage: 80
+    # targetMemoryUtilizationPercentage: 80
+
+  podAnnotations: {}
+  podLabels: {}
+  podSecurityContext: {}
+  securityContext: {}
+
+  service:
+    type: ClusterIP
+    port: 8070
+
+  resources: {}
+  livenessProbe:
+    grpc:
+      port: 8070
+    initialDelaySeconds: 10
+  readinessProbe: {}
+
+  volumes: []
+  volumeMounts: []
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+
+gifcreatorserver:
+  image: *image
+
+  replicaCount: 1
+  autoscaling:
+    enabled: false
+    minReplicas: 1
+    maxReplicas: 100
+    targetCPUUtilizationPercentage: 80
+    # targetMemoryUtilizationPercentage: 80
+
+  podAnnotations: {}
+  podLabels: {}
+  podSecurityContext: {}
+  securityContext: {}
+
+  service:
+    type: ClusterIP
+    port: 8081
+
+  resources: {}
+  livenessProbe:
+    grpc:
+      port: 8081
+    initialDelaySeconds: 10
+  readinessProbe: {}
+
+  volumes: []
+  volumeMounts: []
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+
+gifcreatorworker:
+  image: *image
+
+  replicaCount: 1
+  autoscaling:
+    enabled: false
+    minReplicas: 1
+    maxReplicas: 100
+    targetCPUUtilizationPercentage: 80
+    # targetMemoryUtilizationPercentage: 80
+
+  podAnnotations: {}
+  podLabels: {}
+  podSecurityContext: {}
+  securityContext: {}
+
+  service:
+    type: ClusterIP
+    port: 8082
+
+  resources: {}
+
+  livenessProbe:
+    grpc:
+      port: 8082
+    initialDelaySeconds: 10
+  readinessProbe: {}
+
+  volumes: []
+  volumeMounts: []
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+
+frontend:
+  image: *image
+
+  replicaCount: 1
+  autoscaling:
+    enabled: false
+    minReplicas: 1
+    maxReplicas: 100
+    targetCPUUtilizationPercentage: 80
+    # targetMemoryUtilizationPercentage: 80
+
+  podAnnotations: {}
+  podLabels: {}
+  podSecurityContext: {}
+  securityContext: {}
+
+  service:
+    type: ClusterIP
+    port: 8090
+  ingress:
+    enabled: false
+    annotations: {}
+    hosts:
+      - host: gif.home.inherently.xyz
+        paths:
+          - path: /
+            pathType: ImplementationSpecific
+    tls:
+      - secretName: gifinator-tls
+        hosts:
+          - gif.home.inherently.xyz
+
+  resources: {}
+
+  livenessProbe:
+    httpGet:
+      path: /
+      port: http
+  readinessProbe:
+    httpGet:
+      path: /
+      port: http
+
+  volumes: []
+  volumeMounts: []
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}

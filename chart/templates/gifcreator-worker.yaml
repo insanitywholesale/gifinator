@@ -1,0 +1,106 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "gifinator.fullname" . }}-gifcreator-worker
+  labels:
+    {{- include "gifinator.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.gifcreatorworker.autoscaling.enabled }}
+  replicas: {{ .Values.gifcreatorworker.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "gifinator.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.gifcreatorworker.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "gifinator.labels" . | nindent 8 }}
+        {{- with .Values.gifcreatorworker.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- with .Values.gifcreatorworker.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.gifcreatorworker.podSecurityContext }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: {{ .Chart.Name }}
+          {{- with .Values.gifcreatorworker.securityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          image: "{{ .Values.gifcreatorworker.image.repository }}:{{ .Values.gifcreatorworker.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.gifcreatorworker.image.pullPolicy }}
+          command: ["/gifcreator", "-worker"]
+          env:
+            - name: MINIO_NAME
+              value: "{{ .Values.common.minioHost }}"
+            - name: REDIS_NAME
+              value: "{{ .Values.common.redisHost }}"
+            - name: REDIS_PORT
+              value: "{{ .Values.common.redisPort }}"
+            - name: RENDER_NAME
+              value: "{{ .Values.common.renderHost }}"
+            - name: RENDER_PORT
+              value: "{{ .Values.common.renderPort }}"
+          ports:
+            - name: grpc
+              containerPort: {{ .Values.gifcreatorworker.service.port }}
+              protocol: TCP
+          {{- with .Values.gifcreatorworker.livenessProbe }}
+          livenessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.gifcreatorworker.readinessProbe }}
+          readinessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.gifcreatorworker.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.gifcreatorworker.volumeMounts }}
+          volumeMounts:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+      {{- with .Values.gifcreatorworker.volumes }}
+      volumes:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.gifcreatorworker.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.gifcreatorworker.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.gifcreatorworker.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "gifinator.fullname" . }}-gifcreator-worker
+  labels:
+    {{- include "gifinator.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.gifcreatorworker.service.type }}
+  ports:
+    - port: {{ .Values.gifcreatorworker.service.port }}
+      targetPort: grpc
+      protocol: TCP
+      name: grpc
+  selector:
+    {{- include "gifinator.selectorLabels" . | nindent 4 }}

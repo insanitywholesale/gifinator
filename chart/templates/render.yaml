@@ -1,0 +1,98 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "gifinator.fullname" . }}-render
+  labels:
+    {{- include "gifinator.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.render.autoscaling.enabled }}
+  replicas: {{ .Values.render.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "gifinator.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.render.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "gifinator.labels" . | nindent 8 }}
+        {{- with .Values.render.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- with .Values.render.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.render.podSecurityContext }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: {{ .Chart.Name }}
+          {{- with .Values.render.securityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          image: "{{ .Values.render.image.repository }}:{{ .Values.render.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.render.image.pullPolicy }}
+          command: ["/render"]
+          env:
+            - name: MINIO_NAME
+              value: "{{ .Values.common.minioAddress }}"
+          ports:
+            - name: grpc
+              containerPort: {{ .Values.render.service.port }}
+              protocol: TCP
+          {{- with .Values.render.livenessProbe }}
+          livenessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.render.readinessProbe }}
+          readinessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.render.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.render.volumeMounts }}
+          volumeMounts:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+      {{- with .Values.render.volumes }}
+      volumes:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.render.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.render.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.render.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "gifinator.fullname" . }}-render
+  labels:
+    {{- include "gifinator.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.render.service.type }}
+  ports:
+    - port: {{ .Values.render.service.port }}
+      targetPort: grpc
+      protocol: TCP
+      name: grpc
+  selector:
+    {{- include "gifinator.selectorLabels" . | nindent 4 }}
