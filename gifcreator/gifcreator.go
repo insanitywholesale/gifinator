@@ -42,6 +42,7 @@ import (
 	"golang.org/x/image/font/gofont/gobold"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
+	health "google.golang.org/grpc/health/grpc_health_v1"
 )
 
 type server struct {
@@ -507,6 +508,11 @@ func (server) GetJob(_ context.Context, req *pb.GetJobRequest) (*pb.GetJobRespon
 	}
 	response := pb.GetJobResponse{ImageUrl: job.FinalImagePath, Status: job.Status}
 	return &response, nil
+}
+
+// Healthcheck
+func (server) Check(_ context.Context, req *health.HealthCheckRequest) (*health.HealthCheckResponse, error) {
+	return &health.HealthCheckResponse{Status: health.HealthCheckResponse_SERVING}, nil
 }
 
 func main() {

@@ -18,12 +18,7 @@ all:
 	cd frontend && go build && cd ..
 
 proto:
-	protoc -I ./proto/ \
-	--go_out=./proto \
-	--go_opt=paths=source_relative \
-	--go-grpc_out=./proto \
-	--go-grpc_opt=paths=source_relative \
-	proto/*.proto
+	buf generate
 
 clean:
 	rm -f gifcreator/gifcreator render/render frontend/frontend

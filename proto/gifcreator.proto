@@ -16,13 +16,16 @@
 
 syntax = "proto3";
 
-package renderdemo;
+import "grpc/health/v1/health.proto";
+
+package gifinator;
 
 option go_package = "gitlab.com/insanitywholesale/gifinator/proto";
 
 service GifCreator {
   rpc StartJob (StartJobRequest) returns (StartJobResponse);
   rpc GetJob (GetJobRequest) returns (GetJobResponse);
+  rpc Check(grpc.health.v1.HealthCheckRequest) returns (grpc.health.v1.HealthCheckResponse);
 }
 
 message StartJobRequest {
