@@ -1,9 +1,6 @@
-FROM --platform=$BUILDPLATFORM busybox AS run
+FROM --platform=$BUILDPLATFORM gcr.io/distroless/static-debian12:nonroot
 
-RUN mkdir /tmp/objcache
-RUN mkdir /tmp/scene
-
-COPY ./gifcreator/scene /tmp/scene
+COPY ./gifcreator/scene /scene
 COPY ./frontend/templates /templates
 
 COPY ./render/render /render
