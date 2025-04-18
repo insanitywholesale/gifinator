@@ -545,7 +545,7 @@ func main() {
 	renderHostAddr := renderName + ":" + renderPort
 	scenePath = os.Getenv("SCENE_PATH")
 	if scenePath == "" {
-		scenePath = "/tmp/scene"
+		scenePath = "/scene"
 	}
 	minioName := os.Getenv("MINIO_NAME")
 	if minioName == "" {

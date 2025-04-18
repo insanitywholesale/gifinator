@@ -61,7 +61,7 @@ see [official docs](https://github.com/minio/minio/tree/9171d6ef651a852b48f39f82
 | Variable          | Description                         | Default Value        |
 |-------------------|-------------------------------------|----------------------|
 | `GIFCREATOR_PORT` | port the service will run at        | 8082                 |
-| `SCENE_PATH`      | path to find files for gif creation | /tmp/scene           |
+| `SCENE_PATH`      | path to find files for gif creation | /scene               |
 | `RENDER_NAME`     | renderer domain name                | localhost            |
 | `RENDER_PORT`     | renderer port number                | 8070                 |
 | `REDIS_NAME`      | redis server domain name            | localhost            |
