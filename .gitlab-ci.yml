@@ -1,6 +1,6 @@
 # TODO: make better as seen here: https://developpaper.com/configuring-gitlab-ci-for-golang-project/
 # link to original: https://gitlab.com/gitlab-org/gitlab/-/blob/master/lib/gitlab/ci/templates/Go.gitlab-ci.yml
-image: golang:1.24
+image: golang:1.26
 cache:
   - key: module-cache-$CI_COMMIT_REF_SLUG
     paths:
